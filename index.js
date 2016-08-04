@@ -1,24 +1,42 @@
-// JQuery part - when text is selected, window pops up, giving user options of what to do with text
+var textHighlightedByUser;
 
-var clicking = false;
-
-$(document).ready(function() {
-        $('.sample').mousedown(function() {
-            clicking = true;
-            $('.sample').css('background-color', 'yellow');
-
-            // how to apply color only to selected text - individual letters
-        });
-
-        $(document).mouseup(function() {
-            clicking = false;
-            console.log(clicking);
-        });
-
-        $('.sample').mousemove(function() {
-            if (clicking == false) return;
-            console.log('clicking', clicking)
+$(function() {
+    $(".sample")
+        .mouseup(function() {
+            $(".highlightOptions").show();
+            textHighlightedByUser = getSelectionText();            
+            highlightText();
+            console.log(textHighlightedByUser);
 
         });
-    })
-    // Backend part - take the highlights and spit back relevant info to clients
+});
+
+function getSelectionText() {
+    var text = "";
+    if (window.getSelection) {
+        text = window.getSelection().toString();
+    } else if (document.selection && document.selection.type != "Control") {
+        text = document.selection.createRange().text;
+    }
+    return text;
+};
+
+function highlightText() {
+    $(".highlightOptions").show();
+    if ($('#yellowCheck').is(':checked')) {
+        $('div:contains(' + textHighlightedByUser + ')').html(function(_, html) {
+            return html.replace(textHighlightedByUser, '<span class="selectedYellow">' + textHighlightedByUser + '</span>');
+        });
+        $(".highlightOptions").hide();
+        $('input[name="colorSelection"]').prop('checked', false);
+    } else if ($("#redCheck").is(':checked')) {
+        $('div:contains(' + textHighlightedByUser + ')').html(function(_, html) {
+            return html.replace(textHighlightedByUser, '<span class="selectedRed">' + textHighlightedByUser + '</span>');
+        });
+        $(".highlightOptions").hide();
+        $('input[name="colorSelection"]').prop('checked', false);
+    }
+
+};
+
+// Backend part - take the highlights and spit back relevant info to clients

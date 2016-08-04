@@ -1,0 +1,11 @@
+.selectedYellow {
+	background-color: yellow;
+}
+
+.selectedRed {
+	background-color: red;
+}
+
+input {
+	display:none;
+}
