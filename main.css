@@ -1,11 +1,87 @@
+body {
+    padding: 7% 23%;
+    font-family: 'Open Sans', sans-serif;
+    font-size: 25px;
+}
+
 .selectedYellow {
-	background-color: yellow;
+    background-color: yellow;
 }
 
 .selectedRed {
-	background-color: red;
+    background-color: red;
 }
 
-input {
-	display:none;
+.highlightOptions {
+    display: none;
+    position: absolute;
+    background-color:orange;
+    opacity: 0.7;
+}
+
+.highlightOptions:hover {
+	opacity: 1;
+}
+
+.sampl .material-icons {
+    font-family: 'Material Icons';
+    border: 1px solid black;
+    font-weight: normal;
+    font-style: normal;
+    font-size: 24px;
+    /* Preferred icon size */
+    display: inline-block;
+    line-height: 1;
+    text-transform: none;
+    letter-spacing: normal;
+    word-wrap: normal;
+    white-space: nowrap;
+    direction: ltr;
+    /* Support for all WebKit browsers. */
+    -webkit-font-smoothing: antialiased;
+    /* Support for Safari and Chrome. */
+    text-rendering: optimizeLegibility;
+    /* Support for Firefox. */
+    -moz-osx-font-smoothing: grayscale;
+    /* Support for IE. */
+    font-feature-settings: 'liga';
+}
+
+.material-icons:hover {
+    cursor: pointer;
+    opacity: 1;
+}
+
+* {
+/*    font-size: 10px;
+*/} //for default dialog font/button size
+.hide {
+    display: none;
+}
+
+textarea {}
+
+#msgbox {
+    font-size: 16px;
+}
+
+#msgbox p {
+    font-size: 12px;
+}
+
+#msgbox textarea {
+    font-size: 12px;
+}
+
+.ui-dialog-titlebar-close {
+    visibility: hidden;
+}
+
+.userComments {
+	opacity: 0.5;
+	position:absolute;
+}
+
+.userComments:hover {
+	opacity: 1;
 }
