@@ -1,16 +1,53 @@
 var express = require('express');
 
-var Storage = function() {
-    this.items = [];
-    this.id = 0;
+// Is this server-side logic or client-side logic?
+var userComments = function() {
+    this.commentedOnByUser = [];
+    this.highlightsByUser = [];
+    // this.id = 0;
 };
 
-Storage.prototype.add = function(name) {
-    var item = { name: name, id: this.id };
-    this.items.push(item);
-    this.id += 1;
+userComments.prototype.addHighlights = function(selectedText, user, date) {
+    // What other info to include? Date, user,...
+    var highlightedItem = {
+        'selected text': selectedText,
+        'user': user,
+        'date': date
+    };
+    // Homework: for-in loop
+    if (this.highlightsByUser.length > 0) { // are there any highlights?
+        // when there are highlights
+        for (var i = 0; i < this.highlightsByUser.length; i++) {
+            // check for duplicates           
+            if (selectedText != this.highlightsByUser[i]["selected text"]) {
+                this.highlightsByUser.push(highlightedItem);
+                // get out of loop
+                return highlightedItem;
+            }
+        }
+
+    } else {
+        this.highlightsByUser.push(highlightedItem);
+    }
+
+    return highlightedItem; // sent with new date
+};
+
+userComments.prototype.addComments = function(comment, selectedText, user, date) {
+    // What other info to include? Date, user,...
+    var item = {
+        'comment': comment,
+        'selected text': selectedText,
+        'user': user,
+        'date': date
+    };
+    this.commentedOnByUser.push(item);
+    // this.id += 1;
     return item;
 };
+
+// Why do I need to create a new instance of this?
+var userComments = new userComments();
 
 // Storage.prototype.delete = function(positionOfObject) {
 //     this.items.splice(positionOfObject, 1);
@@ -21,14 +58,13 @@ Storage.prototype.add = function(name) {
 
 // }
 
-var storage = new Storage();
-
 var app = express();
 app.use(express.static('public'));
+// app.use('/public2', express.static('public2'));
 
-// app.get('/items', function(req, res) {
-//     res.json(storage.items);
-// });
+app.get('/userComments', function(req, res) {
+    res.json(userComments);
+});
 
 // app.get('/items/:id', function(req, res){
 //     var id = req.params.id;
@@ -39,12 +75,19 @@ app.use(express.static('public'));
 var bodyParser = require('body-parser');
 var jsonParser = bodyParser.json();
 
-app.post('/items', jsonParser, function(req, res) {
+app.get('/userData', function(req, res) {
+    res.json(userComments);
+});
+
+app.post('/userData', jsonParser, function(req, res) {
     if (!req.body) {
         return res.sendStatus(400);
     }
-
-    var item = storage.add(req.body.name);
+    if (!req.body.comment) {
+        var item = userComments.addHighlights(req.body.selectedText, req.body.user, req.body.date)
+    } else {
+        var item = userComments.addComments(req.body.comment, req.body.selectedText, req.body.user, req.body.date);
+    }
     res.status(201).json(item);
 });
 
@@ -61,7 +104,7 @@ app.post('/items', jsonParser, function(req, res) {
 //     var id = req.params.id;
 //     var positionOfObject = findObject(id);
 //     var updatedName = storage.edit(positionOfObject, req.body.name);
-    // res.status(200).json(updatedName);
+// res.status(200).json(updatedName);
 
 // });
 
@@ -78,4 +121,4 @@ app.post('/items', jsonParser, function(req, res) {
 app.listen(process.env.PORT || 8080);
 
 exports.app = app;
-exports.storage = storage;
+exports.userComments = userComments;
