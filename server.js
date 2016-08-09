@@ -10,7 +10,7 @@ var userComments = function() {
 userComments.prototype.addHighlights = function(selectedText, user, date) {
     // What other info to include? Date, user,...
     var highlightedItem = {
-        'selectedText': selectedText,
+        "selectedText": selectedText,
         'user': user,
         'date': date
     };

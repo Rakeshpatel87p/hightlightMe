@@ -1,5 +1,5 @@
 // Server-side req:
-// When user loads page, receive JSON data from server, if certain number of highlights are met:
+// When user loads page, if certain number of highlights are met:
 //      -Shows users.
 // Create heat map of comments on a page & issues
 
@@ -16,7 +16,7 @@ var date = $.datepicker.formatDate('yy/mm/dd', new Date());
 
 
 $(function() {
-    var data = getHighlightsJSON();
+    getIndivUserData();
     $(".sample")
         .mouseup(function() {
             cursorPosition = { 'top': event.pageY, 'left': event.pageX }
@@ -100,15 +100,27 @@ $(function() {
 
 });
 
-var getHighlightsJSON = function(data) {
+var getIndivUserData = function(data) {
     var ajax = $.ajax('/userData', {
         type: 'GET',
         dataType: 'json',
-        success:function(data){
-            console.log(data)
+        success: function(data) {
+            if (data.highlightsByUser.length > 0) {
+                for (var i = 0; i < data.highlightsByUser.length; i++) {
+                    var spn = '<span class="selectedYellow">' + data.highlightsByUser[i].selectedText + '</span>'
+                    $('.sample').html($('.sample').html().replace(data.highlightsByUser[i].selectedText, spn));
+
+                }
+            }
+            if (data.commentedOnByUser.length > 0) {
+                for (var i = 0; i < data.commentedOnByUser.length; i++) {
+                    $('.userComments').append('<i class="material-icons" id="comment">insert_comment</i>');
+
+                }
+            }
         }
     });
-    ajax.done(console.log('Got It'));
+    ajax.done();
 };
 
 $('#msgbox').dialog({
