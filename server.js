@@ -10,7 +10,7 @@ var userComments = function() {
 userComments.prototype.addHighlights = function(selectedText, user, date) {
     // What other info to include? Date, user,...
     var highlightedItem = {
-        'selected text': selectedText,
+        'selectedText': selectedText,
         'user': user,
         'date': date
     };
@@ -19,7 +19,7 @@ userComments.prototype.addHighlights = function(selectedText, user, date) {
         // when there are highlights
         for (var i = 0; i < this.highlightsByUser.length; i++) {
             // check for duplicates           
-            if (selectedText != this.highlightsByUser[i]["selected text"]) {
+            if (selectedText != this.highlightsByUser[i].selectedText) {
                 this.highlightsByUser.push(highlightedItem);
                 // get out of loop
                 return highlightedItem;
@@ -29,7 +29,6 @@ userComments.prototype.addHighlights = function(selectedText, user, date) {
     } else {
         this.highlightsByUser.push(highlightedItem);
     }
-
     return highlightedItem; // sent with new date
 };
 
@@ -60,9 +59,8 @@ var userComments = new userComments();
 
 var app = express();
 app.use(express.static('public'));
-// app.use('/public2', express.static('public2'));
 
-app.get('/userComments', function(req, res) {
+app.get('/userData', function(req, res) {
     res.json(userComments);
 });
 

@@ -1,6 +1,8 @@
-// Determine server-side req:
-// When user loads page, receive JSON data from server, if conditions are met:
-//      -Reaches x number of highlights
+// Server-side req:
+// When user loads page, receive JSON data from server, if certain number of highlights are met:
+//      -Shows users.
+// Create heat map of comments on a page & issues
+
 // UI Issues:
 // Determine unsmile face usability
 // Positioning of comment box
@@ -14,14 +16,7 @@ var date = $.datepicker.formatDate('yy/mm/dd', new Date());
 
 
 $(function() {
-    // var ajax = $.ajax('/userComments', {
-    //     type: 'GET',
-    //     dataType: 'json',
-    //     success:function(data){
-    //         console.log(data)
-    //     }
-    // });
-    // ajax.done(console.log(ajax));
+    var data = getHighlightsJSON();
     $(".sample")
         .mouseup(function() {
             cursorPosition = { 'top': event.pageY, 'left': event.pageX }
@@ -30,16 +25,26 @@ $(function() {
                 $(".highlightOptions").show().css({ 'top': event.pageY + 10, 'left': event.pageX });
                 // $(".highlightOptions").show().css({ 'top': event.pageY + 10, 'left': event.pageX });
                 if ($("#highlight").click(function() {
+                        // document.execCommand('CreateLink', false, 'uniqueid');
+                        // var sel = $('a[href="uniqueid"]');
+                        // sel.wrap('<span class="selectedYellow" />')
+                        // sel.contents().unwrap();
+                        var spn = '<span class="selectedYellow">' + textHighlightedByUser + '</span>'
+                        $('.sample').html($('.sample').html().replace(textHighlightedByUser, spn));
                         // Provide logic here that says if text is already highlighted, then it gets unhighlighted
                         // if ($('div:contains(' + textHighlightedByUser + ')').hasAttribute('span'){
                         //  console.log('yeppers');
                         // })
-                        $('div:contains(' + textHighlightedByUser + ')').html(function(_, html) {
-                            var attr = $('div:contains(' + textHighlightedByUser + ')').attr('</span>');
-                            if (attr !== false) {}
-                            return html.replace(textHighlightedByUser, '<span class="selectedYellow">' + textHighlightedByUser + '</span>');
-                        });
+                        // $('div:contains(' + textHighlightedByUser + ')').html(function(_, html) {
+                        // var attr = $('div:contains(' + textHighlightedByUser + ')').hasClass('selectedYellow');
+                        // Need new logic: if the highlighted text does not have span class, then we glob 
+                        // if ($('div:contains(' + textHighlightedByUser + ')').hasClass('selectedYellow') == false) {
+                        // return html.replace(textHighlightedByUser, '<span class="selectedYellow">' + textHighlightedByUser + '</span>');
+                        // } 
+                        // console.log('statement evals to true');
+                        // });
                         var highlightedItem = { 'selectedText': textHighlightedByUser, 'user': 'user', 'date': date };
+                        console.log('highlighted Item', highlightedItem);
                         var ajax = $.ajax('/userData', {
                             type: 'POST',
                             data: JSON.stringify(highlightedItem),
@@ -95,6 +100,17 @@ $(function() {
 
 });
 
+var getHighlightsJSON = function(data) {
+    var ajax = $.ajax('/userData', {
+        type: 'GET',
+        dataType: 'json',
+        success:function(data){
+            console.log(data)
+        }
+    });
+    ajax.done(console.log('Got It'));
+};
+
 $('#msgbox').dialog({
     autoOpen: false,
     modal: true,
@@ -127,7 +143,7 @@ $('#msgbox').dialog({
                 //     console.log(item);
                 // }
             });
-            ajax.done(console.log('Posted Item:', item));
+            ajax.done(console.log('PostedItem:', item));
             $(".highlightOptions").hide();
 
         },
