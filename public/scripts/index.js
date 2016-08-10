@@ -5,7 +5,6 @@
 
 // UI Issues:
 // Determine unsmile face usability
-// Positioning of comment box
 // Place marker flag where comments are left
 // Unhighlighting highlighted text
 
@@ -25,25 +24,28 @@ $(function() {
                 $(".highlightOptions").show().css({ 'top': event.pageY + 10, 'left': event.pageX });
                 // $(".highlightOptions").show().css({ 'top': event.pageY + 10, 'left': event.pageX });
                 if ($("#highlight").click(function() {
-                        // document.execCommand('CreateLink', false, 'uniqueid');
-                        // var sel = $('a[href="uniqueid"]');
-                        // sel.wrap('<span class="selectedYellow" />')
-                        // sel.contents().unwrap();
+                        // LIKELY SPOT FOR DUPLICATE SPAN APPLICATIONS
                         var spn = '<span class="selectedYellow">' + textHighlightedByUser + '</span>'
                         $('.sample').html($('.sample').html().replace(textHighlightedByUser, spn));
-                        // Provide logic here that says if text is already highlighted, then it gets unhighlighted
+                        
+                        if ($(textHighlightedByUser).hasClass('selectedYellow')){
+                            console.log('already highlighted');
+                        }
+                        // This method didn't work
                         // if ($('div:contains(' + textHighlightedByUser + ')').hasAttribute('span'){
                         //  console.log('yeppers');
                         // })
+                        
+                        // This method didn't work either.
                         // $('div:contains(' + textHighlightedByUser + ')').html(function(_, html) {
                         // var attr = $('div:contains(' + textHighlightedByUser + ')').hasClass('selectedYellow');
-                        // Need new logic: if the highlighted text does not have span class, then we glob 
+                        
                         // if ($('div:contains(' + textHighlightedByUser + ')').hasClass('selectedYellow') == false) {
                         // return html.replace(textHighlightedByUser, '<span class="selectedYellow">' + textHighlightedByUser + '</span>');
                         // } 
                         // console.log('statement evals to true');
                         // });
-                        var highlightedItem = { 'selectedText': textHighlightedByUser, 'user': 'user', 'date': date };
+                        var highlightedItem = { 'selectedText': textHighlightedByUser, 'date': date };
                         console.log('highlighted Item', highlightedItem);
                         var ajax = $.ajax('/userData', {
                             type: 'POST',
@@ -97,6 +99,38 @@ $(function() {
             //         console.log(textHighlightedByUser);
 
         });
+    $('.heatMapLink').click(function() {
+        var ajax = $.ajax('/userData', {
+            type: 'GET',
+            dataType: 'json',
+            success: function(data) {
+                for (var i = Things.length - 1; i >= 0; i--) {
+                    Things[i]
+                }
+                // Take the entire document.
+                // See where users have highlighted and assign a point.
+                // If value > X, assign it a color.
+                // Color increases depnding on how high X is.
+                // Take all selectedText values, compare them
+                // Depending on overlap, assign a numerical value.
+                // Numerical value gets converted into color tone - darker, more highlights 
+                // if (data.user.highlightsByUser.length > 0) {
+                //     for (var i = 0; i < data.user.highlightsByUser.length; i++) {
+                //         var spn = '<span class="selectedYellow">' + data.user.highlightsByUser[i].selectedText + '</span>'
+                //         $('.sample').html($('.sample').html().replace(data.user.highlightsByUser[i].selectedText, spn));
+
+                //     }
+                // }
+                // if (data.user.commentsByUser.length > 0) {
+                //     for (var i = 0; i < data.user.commentedOnByUser.length; i++) {
+                //         $('.userComments').append('<i class="material-icons" id="comment">insert_comment</i>');
+
+                //     }
+                // }
+            }
+        });
+        ajax.done();
+    })
 
 });
 
@@ -105,15 +139,15 @@ var getIndivUserData = function(data) {
         type: 'GET',
         dataType: 'json',
         success: function(data) {
-            if (data.highlightsByUser.length > 0) {
-                for (var i = 0; i < data.highlightsByUser.length; i++) {
-                    var spn = '<span class="selectedYellow">' + data.highlightsByUser[i].selectedText + '</span>'
-                    $('.sample').html($('.sample').html().replace(data.highlightsByUser[i].selectedText, spn));
+            if (data.user.highlightsByUser.length > 0) {
+                for (var i = 0; i < data.user.highlightsByUser.length; i++) {
+                    var spn = '<span class="selectedYellow">' + data.user.highlightsByUser[i].selectedText + '</span>'
+                    $('.sample').html($('.sample').html().replace(data.user.highlightsByUser[i].selectedText, spn));
 
                 }
             }
-            if (data.commentedOnByUser.length > 0) {
-                for (var i = 0; i < data.commentedOnByUser.length; i++) {
+            if (data.user.commentsByUser.length > 0) {
+                for (var i = 0; i < data.user.commentedOnByUser.length; i++) {
                     $('.userComments').append('<i class="material-icons" id="comment">insert_comment</i>');
 
                 }
@@ -124,6 +158,7 @@ var getIndivUserData = function(data) {
 };
 
 $('#msgbox').dialog({
+    position: 'right',
     autoOpen: false,
     modal: true,
     buttons: {
@@ -139,21 +174,12 @@ $('#msgbox').dialog({
 
             });
             $('#' + id).css(cursorPosition);
-            //Do your ajax update here:
-            /*
-            $.ajax({
-                //Unsure of cfc syntax
-            });
-            */
-            var item = { 'comment': newComments, 'selectedText': textHighlightedByUser, 'user': 'user', 'date': date };
+            var item = { 'comment': newComments, 'selectedText': textHighlightedByUser, 'date': date };
             var ajax = $.ajax('/userData', {
                 type: 'POST',
                 data: JSON.stringify(item),
                 dataType: 'json',
                 contentType: 'application/json',
-                // success: function(){
-                //     console.log(item);
-                // }
             });
             ajax.done(console.log('PostedItem:', item));
             $(".highlightOptions").hide();
@@ -167,7 +193,7 @@ $('#msgbox').dialog({
             $(".highlightOptions").hide();
         }
     }
-});
+})
 
 function getSelectionText() {
     var text = "";

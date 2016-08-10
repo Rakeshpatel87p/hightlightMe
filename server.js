@@ -1,90 +1,101 @@
 var express = require('express');
 
-// Is this server-side logic or client-side logic?
-var userComments = function() {
-    this.commentedOnByUser = [];
-    this.highlightsByUser = [];
-    // this.id = 0;
+// Demo user object
+var userData = function() {
+    this.user = {
+        userName: 'sampleUser',
+        userId: 'sampleId',
+        commentsByUser: [],
+        highlightsByUser: []
+    };
+    // Sample user for heatmap
+    this.user2 = {
+        userName: 'BillyBob',
+        userId: 'YYYYY',
+        commentsByUser: [],
+        highlightsByUser: [{
+                "selectedText": 'To use Angular effectively',
+                'date': '2016/8/8'
+            }, {
+                "selectedText": 'HTTP is the protocol',
+                'date': '2016/8/8'
+            }
+
+        ]
+    };
+    // Sample user2 for heatmap
+    this.user3 = {
+        userName: 'HillaryClinton',
+        userId: 'XXXXX',
+        commentsByUser: [],
+        highlightsByUser: [{
+                "selectedText": 'To use Angular effectively',
+                'date': '2016/8/8'
+            }, {
+                "selectedText": 'HTTP is the protocol',
+                'date': '2016/8/8'
+            }
+
+        ]
+    }
+
 };
 
-userComments.prototype.addHighlights = function(selectedText, user, date) {
+userData.prototype.addHighlights = function(selectedText, date) {
     // What other info to include? Date, user,...
     var highlightedItem = {
         "selectedText": selectedText,
-        'user': user,
         'date': date
     };
     // Homework: for-in loop
-    if (this.highlightsByUser.length > 0) { // are there any highlights?
+    if (this.user.highlightsByUser.length > 0) { // are there any highlights?
         // when there are highlights
-        for (var i = 0; i < this.highlightsByUser.length; i++) {
+        for (var i = 0; i < this.user.highlightsByUser.length; i++) {
             // check for duplicates           
-            if (selectedText != this.highlightsByUser[i].selectedText) {
-                this.highlightsByUser.push(highlightedItem);
+            if (selectedText != this.user.highlightsByUser[i].selectedText) {
+                this.user.highlightsByUser.push(highlightedItem);
                 // get out of loop
                 return highlightedItem;
             }
         }
 
     } else {
-        this.highlightsByUser.push(highlightedItem);
+        this.user.highlightsByUser.push(highlightedItem);
     }
     return highlightedItem; // sent with new date
 };
 
-userComments.prototype.addComments = function(comment, selectedText, user, date) {
+userData.prototype.addComments = function(comment, selectedText, date) {
     // What other info to include? Date, user,...
     var item = {
         'comment': comment,
         'selected text': selectedText,
-        'user': user,
         'date': date
     };
-    this.commentedOnByUser.push(item);
-    // this.id += 1;
+    this.user.commentsByUser.push(item);
     return item;
 };
 
-// Why do I need to create a new instance of this?
-var userComments = new userComments();
-
-// Storage.prototype.delete = function(positionOfObject) {
-//     this.items.splice(positionOfObject, 1);
-// };
-
-// Storage.prototype.edit = function(positionOfObject, editedName) {
-//     this.items[positionOfObject].name = editedName;
-
-// }
+var userData = new userData();
 
 var app = express();
 app.use(express.static('public'));
 
 app.get('/userData', function(req, res) {
-    res.json(userComments);
+    res.json(userData);
 });
-
-// app.get('/items/:id', function(req, res){
-//     var id = req.params.id;
-//     var getID = findObject(id);
-//     res.json(storage.items[getID]);
-// })
 
 var bodyParser = require('body-parser');
 var jsonParser = bodyParser.json();
-
-app.get('/userData', function(req, res) {
-    res.json(userComments);
-});
 
 app.post('/userData', jsonParser, function(req, res) {
     if (!req.body) {
         return res.sendStatus(400);
     }
     if (!req.body.comment) {
-        var item = userComments.addHighlights(req.body.selectedText, req.body.user, req.body.date)
+        var item = userData.addHighlights(req.body.selectedText, req.body.date)
     } else {
-        var item = userComments.addComments(req.body.comment, req.body.selectedText, req.body.user, req.body.date);
+        var item = userData.addComments(req.body.comment, req.body.selectedText, req.body.date);
     }
     res.status(201).json(item);
 });
@@ -119,4 +130,4 @@ app.post('/userData', jsonParser, function(req, res) {
 app.listen(process.env.PORT || 8080);
 
 exports.app = app;
-exports.userComments = userComments;
+exports.userData = userData;
