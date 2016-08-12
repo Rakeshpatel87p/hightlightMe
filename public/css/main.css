@@ -80,7 +80,6 @@ textarea {}
 
 .userComments {
 	opacity: 0.5;
-	position:absolute;
 }
 
 .userComments:hover {

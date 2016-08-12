@@ -2,14 +2,14 @@ var express = require('express');
 
 // Demo user object
 var userData = function() {
-    this.user = {
+    this.user_1 = {
         userName: 'sampleUser',
         userId: 'sampleId',
         commentsByUser: [],
         highlightsByUser: []
     };
     // Sample user for heatmap
-    this.user2 = {
+    this.user_2 = {
         userName: 'BillyBob',
         userId: 'YYYYY',
         commentsByUser: [],
@@ -24,7 +24,7 @@ var userData = function() {
         ]
     };
     // Sample user2 for heatmap
-    this.user3 = {
+    this.user_3 = {
         userName: 'HillaryClinton',
         userId: 'XXXXX',
         commentsByUser: [],
@@ -48,31 +48,30 @@ userData.prototype.addHighlights = function(selectedText, date) {
         'date': date
     };
     // Homework: for-in loop
-    if (this.user.highlightsByUser.length > 0) { // are there any highlights?
+    if (this.user_1.highlightsByUser.length > 0) { // are there any highlights?
         // when there are highlights
-        for (var i = 0; i < this.user.highlightsByUser.length; i++) {
+        for (var i = 0; i < this.user_1.highlightsByUser.length; i++) {
             // check for duplicates           
-            if (selectedText != this.user.highlightsByUser[i].selectedText) {
-                this.user.highlightsByUser.push(highlightedItem);
+            if (selectedText != this.user_1.highlightsByUser[i].selectedText) {
+                this.user_1.highlightsByUser.push(highlightedItem);
                 // get out of loop
                 return highlightedItem;
             }
         }
 
     } else {
-        this.user.highlightsByUser.push(highlightedItem);
+        this.user_1.highlightsByUser.push(highlightedItem);
     }
     return highlightedItem; // sent with new date
 };
 
 userData.prototype.addComments = function(comment, selectedText, date) {
-    // What other info to include? Date, user,...
     var item = {
         'comment': comment,
         'selected text': selectedText,
         'date': date
     };
-    this.user.commentsByUser.push(item);
+    this.user_1.commentsByUser.push(item);
     return item;
 };
 
