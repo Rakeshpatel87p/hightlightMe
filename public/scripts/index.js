@@ -4,10 +4,9 @@
 // Create heat map of comments on a page & issues
 
 // UI Issues:
-// Place marker flag where comments are left
 // Click outside box, options should go away
 // Unhighlighting highlighted text
-
+// set message txt area to "" when it reopens
 
 var textHighlightedByUser;
 var cursorPosition;
@@ -19,7 +18,7 @@ $(function() {
     getIndivUserData();
     $(".sample")
         .mouseup(function() {
-            cursorPosition = { 'top': event.pageY, 'left': event.pageX }
+            cursorPosition = { top: event.pageY, left: event.pageX }
             textHighlightedByUser = getSelectionText();
             if (textHighlightedByUser != "") {
                 $(".highlightOptions").show().css({ 'top': event.pageY + 10, 'left': event.pageX });
@@ -109,12 +108,18 @@ $('#msgbox').dialog({
     autoOpen: false,
     modal: true,
     buttons: {
-        Okay: function() {
+        Okay: function(e) {
             var newComments = $('#ta').val();
             $(this).dialog('close');
             // How to get newly appended items in diff positions, based on the cursor click
             console.log(cursorPosition);
-            $('.sample').append('<i class="material-icons" id="comment">insert_comment</i>').css('position', cursorPosition);
+            $('<i class="material-icons" id="comment">insert_comment</i>').appendTo('.sample')
+                .css({
+                    'position': 'absolute',
+                    'top': cursorPosition.top + 2,
+                    'left': cursorPosition.left,
+                    'opacity': 0.4
+                });
             $('.userComments i').attr('id', function(i) {
                 id = 'number' + (i + 1);
                 return id

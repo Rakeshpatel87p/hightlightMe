@@ -47,6 +47,8 @@ userData.prototype.addHighlights = function(selectedText, date) {
         "selectedText": selectedText,
         'date': date
     };
+
+
     // Homework: for-in loop
     if (this.user_1.highlightsByUser.length > 0) { // are there any highlights?
         // when there are highlights
@@ -75,6 +77,29 @@ userData.prototype.addComments = function(comment, selectedText, date) {
     return item;
 };
 
+// var addAccumulatedHighlightedItem = function(accumulatedHighlightedText, numberOfTimesHighlighted) {
+//     // What other info to include? Date, user,...
+//     var highlightedItemData = {
+//         "text": accumulatedHighlightedText,
+//         'numberOfTimesHighlighted': numberOfTimesHighlighted
+//     };
+//     if (this.length > 0) { // are there any highlights?
+//         // when there are highlights
+//         for (var i = 0; i < this.length; i++) {
+//             // check for duplicates           
+//             if (accumulatedHighlightedText != this[i].highlightedItemData.text) {
+//                 this.push(highlightedItemData);
+//                 // get out of loop
+//                 return highlightedItemData;
+//             }
+//         }
+
+//     } else {
+//         this.push(highlightedItemData);
+//     }
+//     return highlightedItemData; // sent with new date
+// };
+
 var userData = new userData();
 
 var app = express();
@@ -91,15 +116,18 @@ app.post('/userData', jsonParser, function(req, res) {
     if (!req.body) {
         return res.sendStatus(400);
     }
-    if (!req.body.comment) {
-        var item = userData.addHighlights(req.body.selectedText, req.body.date)
-    } else {
+    if (req.body.comment) {
         var item = userData.addComments(req.body.comment, req.body.selectedText, req.body.date);
+
+    // if (req.body.id){
+    //     var highlightedItemData = addAccumulatedHighlightedItem(req.body.highlightedText, req.body.id)
+    // }    
+    } else {
+        var item = userData.addHighlights(req.body.selectedText, req.body.date)
     }
     res.status(201).json(item);
 });
 
-// When to use jsonParser? Necessary here? For put?
 // app.delete('/items/:id', function(req, res) {
 //     var id = req.params.id;
 //     var positionOfObject = findObject(id);
@@ -115,16 +143,6 @@ app.post('/userData', jsonParser, function(req, res) {
 // res.status(200).json(updatedName);
 
 // });
-
-// var findObject = function(id) {
-//     for (var i = 0; i < storage.items.length; i++) {
-//         if (storage.items[i].id == id) {
-//             return i
-//         }
-//     }
-//     return -1
-
-// }
 
 app.listen(process.env.PORT || 8080);
 
