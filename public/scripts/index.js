@@ -1,6 +1,4 @@
 // Server-side req:
-// When user loads page, if certain number of highlights are met:
-//      -Shows users.
 // Create heat map of comments on a page & issues
 
 // UI Issues:
@@ -27,7 +25,7 @@ $(function() {
                         // if (textHighlightedByUser = )
                         var spn = '<span class="selectedYellow">' + textHighlightedByUser + '</span>'
                         $('.sample').html($('.sample').html().replace(textHighlightedByUser, spn));
-
+                        // console.log('logging THIS', $(this));
                         if ($(textHighlightedByUser).hasClass('selectedYellow')) {
                             console.log('already highlighted');
                         }
@@ -46,14 +44,31 @@ $(function() {
                         // console.log('statement evals to true');
                         // });
                         var highlightedItem = { 'selectedText': textHighlightedByUser, 'date': date };
-                        console.log('highlighted Item', highlightedItem);
+                        var ajax = $.ajax('/userData', {
+                            type: 'GET',
+                            dataType: 'json',
+                            success: function(data) {
+                                for (var i = 0; i < data.user_1.highlightsByUser.length; i++) {
+                                    console.log('Before if', textHighlightedByUser, data.user_1.highlightsByUser[i].selectedText);
+
+                                    // console.log(data.user_1.highlightsByUser[i]);
+                                    if (textHighlightedByUser === data.user_1.highlightsByUser[i].selectedText) {
+                                        console.log('During if', textHighlightedByUser, data.user_1.highlightsByUser[i].selectedText);
+
+                                        return;
+                                    } else {
+                                        console.log('else', textHighlightedByUser, data.user_1.highlightsByUser[i].selectedText);
+                                    }
+                                }
+                            }
+                        });
                         var ajax = $.ajax('/userData', {
                             type: 'POST',
                             data: JSON.stringify(highlightedItem),
                             dataType: 'json',
                             contentType: 'application/json',
                         });
-                        ajax.done(console.log('Posted Item:', highlightedItem));
+                        ajax.done();
                         $(".highlightOptions").hide();
                     }));
                 if ($("#comment").click(function(event) {
@@ -112,7 +127,6 @@ $('#msgbox').dialog({
             var newComments = $('#ta').val();
             $(this).dialog('close');
             // How to get newly appended items in diff positions, based on the cursor click
-            console.log(cursorPosition);
             $('<i class="material-icons" id="comment">insert_comment</i>').appendTo('.sample')
                 .css({
                     'position': 'absolute',
@@ -149,6 +163,7 @@ $('#msgbox').dialog({
 
 function getSelectionText() {
     var text = "";
+    // console.log('winSelect', window.getSelection());
     if (window.getSelection) {
         text = window.getSelection().toString();
     } else if (document.selection && document.selection.type != "Control") {

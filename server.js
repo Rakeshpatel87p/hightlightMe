@@ -1,4 +1,40 @@
 var express = require('express');
+var mongoose = require('mongoose');
+mongoose.connect('mongodb://localhost/');
+
+mongoose.connection.on('error', function(err){
+    console.error('Could not connect. Error', err)
+});
+
+mongoose.connection.once('open', function(){
+    var userData = mongoose.Schema({
+        // What will Mongoose be managing?
+        // highlightsByUser and Comments by User
+        // Does it need to take over all my data in order to search it?
+        userName: {type: String, unique: true},
+        userId: {type: String, unique: true},
+        commentsByUser: [],
+        highlightsByUser: []
+    });
+    var Snippet = mongoose.model('Snippet', userData)
+});
+
+
+
+
+// var read = function(Snippet){
+//     // Item that I want to find
+//     var userDataForMongoose = Snippet
+//     collection.findOne(userDataForMongoose, function(err, snippet){
+//         if (!snippet || err){
+//             console.error('Could not read snippet', name);
+//             db.close();
+//             return;
+//         }
+//         console.log('Read snippet', userDataForMongoose);
+//         db.close();
+//     });
+// };
 
 // Demo user object
 var userData = function() {
@@ -116,14 +152,15 @@ app.post('/userData', jsonParser, function(req, res) {
     if (!req.body) {
         return res.sendStatus(400);
     }
-    if (req.body.comment) {
-        var item = userData.addComments(req.body.comment, req.body.selectedText, req.body.date);
-
-    // if (req.body.id){
-    //     var highlightedItemData = addAccumulatedHighlightedItem(req.body.highlightedText, req.body.id)
-    // }    
-    } else {
+    if (!req.body.comment) {
+        console.log(req.body.comment);
         var item = userData.addHighlights(req.body.selectedText, req.body.date)
+
+        // if (req.body.id){
+        //     var highlightedItemData = addAccumulatedHighlightedItem(req.body.highlightedText, req.body.id)
+        // }    
+    } else {
+        var item = userData.addComments(req.body.comment, req.body.selectedText, req.body.date);
     }
     res.status(201).json(item);
 });

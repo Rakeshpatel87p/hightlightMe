@@ -12,30 +12,37 @@ $(function() {
 
         // Stop assigning spans if it already exists in the doc
         // assigning color shade based on this color
+        // Mongodb for finding duplicate values:
+        // Has this function been created before
+        // http://stackoverflow.com/questions/10811887/how-to-get-a-all-count-of-mongoose-model
         success: function(data) {
+            // Keeping count of # of highlights
             var numberOfTimesHighlighted = 1;
             for (var key in data) {
                 var obj = data[key];
+                console.log('accumulatedHighlightedItems', accumulatedHighlightedItems);
                 if (accumulatedHighlightedItems.length > 0) {
                     for (var i = 0; i < obj.highlightsByUser.length; i++) {
+                        // Singles out highlights
                         var highlightedText = obj.highlightsByUser[i].selectedText;
                         for (var j = 0; j < accumulatedHighlightedItems.length; j++) {
+                            // Checking for duplicates
                             if (highlightedText != accumulatedHighlightedItems[j].text) {
                                 accumulatedHighlightedItems.push({ 'text': highlightedText, 'id': numberOfTimesHighlighted });
 
                             }
                         }
-                        console.log(accumulatedHighlightedItems);
+                        // looping too many times. 
+                        console.log('array of accumlated objects', accumulatedHighlightedItems);
                     }
                 }
-                console.log(obj.highlightsByUser.selectedText);
                 accumulatedHighlightedItems.push({ 'text': obj.highlightsByUser.selectedText, 'id': numberOfTimesHighlighted });
             };
             // REMOVE DUPLICATE VALUES BASED ON OBJECT VALUE
             // accumulatedHighlightedItems = accumulatedHighlightedItems.filter(function(obj) {
             //     return obj.text !== accumulatedHighlightedItems[1].text;
             // });
-            console.log(accumulatedHighlightedItems);
+            console.log('accumulated highlights after loop', accumulatedHighlightedItems);
         }
     });
     ajax.done();
