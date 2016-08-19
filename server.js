@@ -30,14 +30,23 @@ var userSchema = mongoose.Schema({
     // Does it need to take over all my data in order to search it?
     username: { type: String, unique: true },
     // userId: { type: String, unique: true },
-    comments: [{ comment: String, text_end: Number, text_start: Number, date: Date }], // content, when they were made??
-    highlights: [{ text_end: Number, text_start: Number, date: Date }] // user? date?
-});
+    comments: [{ comment: String, text_end: Number, text_start: Number }], // content, when they were made??
+    highlights: [{ text_end: Number, text_start: Number }] // user? date?
+}, { timestamps: true });
 var User = mongoose.model('User', userSchema)
 
 // POST COMMENTS & HIGHLIGHTS FOR INDIV USERS
 // DELETE COMMENTS & HIGHLIGHTS FOR INDIV USERS
 // GET ALL USER DATA
+
+app.get('/users', function(req, res) {
+    User.find(function(err, users) {
+        if (err) {
+            res.status(500), json('User data did not load properly')
+        }
+        res.status(201).json(users)
+    })
+})
 
 app.post('/users', function(req, res) {
     // Create a User
@@ -45,7 +54,7 @@ app.post('/users', function(req, res) {
         username: req.body.username
     }, function(err, user) {
         if (err) {
-            return res.status(500).json({ message: "Internal server error" })
+            return res.status(500).json({ message: "Registering User Error" })
         }
         // 201 Created
         res.status(201).json(user);
@@ -74,33 +83,48 @@ app.get('/users/:username', function(req, res, errback) {
     })
 });
 
-app.put('/users/:username', function(req, res) {
+app.put('/users/:username/highlights-comments', function(req, res) {
+    /**
+    Creating highlights for text
+    */
     var query = { username: req.params.username };
     if (!req.body.comment) {
-        User.findOneAndUpdate(query, { $push: { highlights: { text_end: req.body.newHighlight, text_start: 2, date: '8/12/12' } } }, { new: true }, function(error, callback) {
-            if (error) {
-                res.status(500).json('Mistake was made');
-                return;
-            };
-            res.status(201).json(callback);
-        });
+        // User.findOneAndUpdate(query, { $push: { highlights: { text_end: req.body.text_end, text_start: req.body.text_start } } }, { new: true }, function(error, data) {
+        var highlight = {
+            text_start: req.body.text_start,
+            text_end: req.body.text_end
+        };
+        // query? 
+        User.find({username: req.params.username, 'highlights.text_start': req.body.text_start, 'hightlights.text_end': req.body.text_end}, {'highlights.$': 1}, function(err, highlight){
+            console.log(highlight, err);
+            res.status(200).json({});
+        })
+        // User.findOneAndUpdate(req.params.username, { $push: { highlights: highlight } }, { upsert: true }, function(error, data) {
+        //     console.log(data);
+        //     if (error) {,
+        //         res.status(500).json('Mistake was made');
+        //         return;
+        //     };
+        //     res.status(201).json(data);
+        // });
+        // });
     } else {
-        User.findOneAndUpdate(query, { $push: { comments: { comment: req.body.comment, text_end: 0, text_start: 0, date: "8/12/12" } } }, { new: true }, function(error, callback) {
+        User.findOneAndUpdate(query, { $push: { comments: { comment: req.body.comment, text_end: 0, text_start: 0, date: "8/12/12" } } }, { new: true }, function(error, data) {
             if (error) {
                 res.status(500).json('Comment not uploaded');
                 return;
             };
-            res.status(201).json(callback);
+            res.status(201).json(data);
         });
     }
 });
 
 // Deleting highlights and comments from User
-app.delete('users/:username', function(req, res) {
+app.delete('/users/:username/highlights', function(req, res) {
     var username = { username: req.params.username };
-    console.log(user.highlights);
+    // console.log(user.highlights);
     // findOneAndUpdate or update; pull vs pullAll
-   
+
     // User.update(username, {
     //         $pull: { 'highlights': { text_end: req.body.text_end } } },
     //         false,
@@ -113,11 +137,12 @@ app.delete('users/:username', function(req, res) {
     //     //     console.log(callback);
     //     // }
     // );
-    User.findOneAndUpdate(username, { $pull: { highlights: { text_end: req.body.text_end } } }, function(err, callback) {
+    User.findOneAndUpdate(username, { $pull: { highlights: { text_end: req.body.text_end, text_start: req.body.text_start } } }, function(err, data) {
+        console.log('data', data);
         if (err) {
             return res.status(500).json(err)
         }
-        res.status(201).json(callback)
+        res.status(201).json(data)
     });
 });
 

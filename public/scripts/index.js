@@ -1,10 +1,15 @@
-// Server-side req:
-// Create heat map of comments on a page & issues
-
 // UI Issues:
 // Click outside box, options should go away
 // Unhighlighting highlighted text
 // set message txt area to "" when it reopens
+
+// Client-side:
+// allow new users to register
+// allow old users to access their data
+// get old users' data and present to them.
+// post highlights and comments
+// need to get where in doc they select
+//need to hook up delete functionality 
 
 var textHighlightedByUser;
 var cursorPosition;
@@ -13,7 +18,8 @@ var date = $.datepicker.formatDate('yy/mm/dd', new Date());
 
 
 $(function() {
-    getIndivUserData();
+    var username = prompt('What is your username? If not registered, please write one');
+    checkForUserData(username);
     $(".sample")
         .mouseup(function() {
             cursorPosition = { top: event.pageY, left: event.pageX }
@@ -95,24 +101,37 @@ $(function() {
 
 });
 
-var getIndivUserData = function(data) {
-    var ajax = $.ajax('/userData', {
+var checkForUserData = function(username) {
+    var ajax = $.ajax('/users/' + username, {
         type: 'GET',
         dataType: 'json',
         success: function(data) {
-            if (data.user_1.highlightsByUser.length > 0) {
-                for (var i = 0; i < data.user_1.highlightsByUser.length; i++) {
-                    var spn = '<span class="selectedYellow">' + data.user_1.highlightsByUser[i].selectedText + '</span>'
-                    $('.sample').html($('.sample').html().replace(data.user_1.highlightsByUser[i].selectedText, spn));
+            if (data == null) {
+                registerNewUser(username);
+            } else {
+                console.log('we got a match');
+                console.log(data);
+                // if (data.highlights.length > 0) {
+                //     for (var i = 0; i < data.highlights.length; i++) {
+                //         var spn_start = '<span class="selectedYellow">' + data.highlights[i].selectedText;
+                //         var spn_end = 
+                //         // need to play with this more. Maybe insert vs. replace?
+                //         $('.sample').html($('.sample').html().replace(data.highlights[i].text_start, spn_start));
 
-                }
-            }
-            if (data.user_1.commentsByUser.length > 0) {
-                for (var i = 0; i < data.user_1.commentsByUser.length; i++) {
-                    $('.userComments').append('<i class="material-icons" id="comment">insert_comment</i>');
+                //     }
+                // }
+                // if (data.user_1.commentsByUser.length > 0) {
+                //     for (var i = 0; i < data.user_1.commentsByUser.length; i++) {
+                //         $('.userComments').append('<i class="material-icons" id="comment">insert_comment</i>');
 
-                }
+                //     }
+                // }
             }
+
+
+        },
+        error: function(err) {
+            console.log(err);
         }
     });
     ajax.done();
@@ -160,6 +179,15 @@ $('#msgbox').dialog({
         }
     }
 })
+
+function registerNewUser(username){
+    var ajax = $.ajax('/users', {
+        type: 'POST',
+        data: {username: username},
+        dataType: 'string',
+    });
+    ajax.done(console.log('registered new user'));
+};
 
 function getSelectionText() {
     var text = "";
