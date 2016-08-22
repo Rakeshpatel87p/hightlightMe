@@ -1,16 +1,3 @@
-// UI Issues:
-// Click outside box, options should go away
-// Unhighlighting highlighted text
-// set message txt area to "" when it reopens
-
-// Client-side:
-// allow new users to register
-// allow old users to access their data
-// get old users' data and present to them.
-// post highlights and comments
-// need to get where in doc they select
-//need to hook up delete functionality 
-
 var textHighlightedByUser;
 var cursorPosition;
 var id;
