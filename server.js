@@ -50,6 +50,7 @@ app.get('/users', function(req, res) {
 
 app.post('/users', function(req, res) {
     // Create a User
+    // Only if user doesn't exist
     User.create({
         username: req.body.username
     }, function(err, user) {
@@ -94,11 +95,22 @@ app.put('/users/:username/highlights-comments', function(req, res) {
             text_start: req.body.text_start,
             text_end: req.body.text_end
         };
-        // query? 
+        // Not properly adding highlights
         User.find({username: req.params.username, 'highlights.text_start': req.body.text_start, 'hightlights.text_end': req.body.text_end}, {'highlights.$': 1}, function(err, highlight){
             console.log(highlight, err);
-            res.status(200).json({});
-        })
+            res.status(200).json(highlight);
+            console.log(highlight);
+            // If highlight returns no value, then we push it into array
+            if (highlight.length == 0) {
+                User.findOneAndUpdate(req.params.username, {$push: {highlights: highlight}}, function(error, data){
+                    if (error){
+                        res.status(500).json(err)
+                    };
+                    res.status(201).json(data);
+                });
+            };
+                
+        });
         // User.findOneAndUpdate(req.params.username, { $push: { highlights: highlight } }, { upsert: true }, function(error, data) {
         //     console.log(data);
         //     if (error) {,
