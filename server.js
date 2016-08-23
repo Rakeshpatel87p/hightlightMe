@@ -7,7 +7,8 @@ var mongoose = require('mongoose');
 var app = express();
 var bodyParser = require('body-parser');
 var jsonParser = bodyParser.json();
-app.use(bodyParser.urlencoded({ extended: false }))
+var _ = require('underscore');
+app.use(bodyParser.urlencoded({ extended: false }));
 app.use(jsonParser);
 
 app.use(express.static('public'));
@@ -79,19 +80,26 @@ app.put('/users/:username/highlights', function(req, res) {
         text_start: req.body.text_start
     };
     // Not returning needed object
-    User.findOne(username, { 'highlights.$': 1, new: true }, function(err, highlight) {
-        res.status(200).json(highlight);
-        console.log('highlight', highlight.highlights[0].text_start);
+    //User.findOne(username, { 'highlights.$': 1, new: true }, function(err, highlight) {
+    User.findOne(username, function(err, user) {
+        var results = _.where(user.highlights, highlight);
+        if (results.length == 0) {
+            User.findOneAndUpdate(username, { $push: { highlights: highlight } }, function(error, data) {
+                console.log('errr', error)
+                if (error) {
+                    res.status(500).json(err)
+                };
+                // res.status(201).json(data);
+            });
+        }
+
+        res.status(200).json({});
+        //console.log('highlight', highlight.highlights[0].text_start);
         // if (highlight.text_start == highlight.highlights[].text_start)
         // If start/end text matches a record, then update that record with new value
         // Account for user that has highlight 1-10 and then highlights to 11/12++
         // if (highlight.length == undefined) {
-        //     User.findOneAndUpdate(username, { $push: { highlights: highlight } }, function(error, data) {
-        //         if (error) {
-        //             res.status(500).json(err)
-        //         };
-        //         res.status(201).json(data);
-        //     });
+
         // } else {
         //     console.log('record already exists');
         // }
@@ -115,6 +123,7 @@ app.delete('/users/:username/highlights', function(req, res) {
 });
 
 // Put comments
+// more specificity for url /:id
 app.put('/users/:username/comments', function(req, res) {
     var query = { username: req.params.username };
     var comment = {
