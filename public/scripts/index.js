@@ -1,27 +1,26 @@
-// Load highlighted items of user onto webpage
 // Send comments to server
-// Load commens of user onto webpage
+// Load comments of user onto webpage
 
 var textHighlightedByUser;
 var cursorPosition;
 var id;
 var date = $.datepicker.formatDate('yy/mm/dd', new Date());
-
+var thisText = $('.sample').text();
+var username;
 
 $(function() {
-    var username = prompt('What is your username? If not registered, please write one');
+    username = prompt('What is your username? If not registered, please write one');
     checkForUserData(username);
     $(".sample")
         .mouseup(function() {
-            var thisText = $(this).text();
             textHighlightedByUser = getSelectionText();
             cursorPosition = { top: event.pageY, left: event.pageX }
             if (textHighlightedByUser != "") {
                 $(".highlightOptions").show().css({ 'top': event.pageY + 10, 'left': event.pageX });
                 if ($("#highlight").click(function() {
                         // LIKELY SPOT FOR DUPLICATE SPAN APPLICATIONS
-                        // if (textHighlightedByUser = )
-                        var textToHighlight = getHighlightedTextPosition(thisText, textHighlightedByUser);
+                        // Still putting up duplicate highlights
+                        var textToHighlight = getHighlightedTextPosition(textHighlightedByUser);
                         var spn = '<span class="selectedYellow">' + textToHighlight + '</span>'
                         $('.sample').html($('.sample').html().replace(textToHighlight, spn));
                         // console.log('logging THIS', $(this));
@@ -42,32 +41,7 @@ $(function() {
                         // } 
                         // console.log('statement evals to true');
                         // });
-                        var highlightedItem = { 'selectedText': textHighlightedByUser, 'date': date };
-                        var ajax = $.ajax('/userData', {
-                            type: 'GET',
-                            dataType: 'json',
-                            success: function(data) {
-                                for (var i = 0; i < data.user_1.highlightsByUser.length; i++) {
-                                    console.log('Before if', textHighlightedByUser, data.user_1.highlightsByUser[i].selectedText);
-
-                                    // console.log(data.user_1.highlightsByUser[i]);
-                                    if (textHighlightedByUser === data.user_1.highlightsByUser[i].selectedText) {
-                                        console.log('During if', textHighlightedByUser, data.user_1.highlightsByUser[i].selectedText);
-
-                                        return;
-                                    } else {
-                                        console.log('else', textHighlightedByUser, data.user_1.highlightsByUser[i].selectedText);
-                                    }
-                                }
-                            }
-                        });
-                        var ajax = $.ajax('/users', {
-                            type: 'POST',
-                            data: JSON.stringify(highlightedItem),
-                            dataType: 'json',
-                            contentType: 'application/json',
-                        });
-                        ajax.done();
+                        // var highlightedItem = { 'selectedText': textHighlightedByUser, 'date': date };
                         $(".highlightOptions").hide();
                     }));
                 if ($("#comment").click(function(event) {
@@ -116,14 +90,14 @@ $('#msgbox').dialog({
 
             });
             $('#' + id).css(cursorPosition);
-            var item = { 'comment': newComments, 'selectedText': textHighlightedByUser, 'date': date };
-            var ajax = $.ajax('/userData', {
-                type: 'POST',
-                data: JSON.stringify(item),
-                dataType: 'json',
-                contentType: 'application/json',
-            });
-            ajax.done(console.log('PostedItem:', item));
+            // var item = { 'comment': newComments, 'selectedText': 'sample' 'text_end': 'sample'};
+            // var ajax = $.ajax('/user/' + username + '/comments', {
+            //     type: 'PUT',
+            //     data: JSON.stringify(item),
+            //     dataType: 'json',
+            //     contentType: 'application/json',
+            // });
+            // ajax.done(console.log('PostedItem:', item));
             $(".highlightOptions").hide();
 
         },
@@ -145,17 +119,15 @@ var checkForUserData = function(username) {
             if (data == null) {
                 registerNewUser(username);
             } else {
-                console.log('we got a match');
-                console.log(data);
-                // if (data.highlights.length > 0) {
-                //     for (var i = 0; i < data.highlights.length; i++) {
-                //         var spn_start = '<span class="selectedYellow">' + data.highlights[i].selectedText;
-                //         var spn_end = 
-                //         // need to play with this more. Maybe insert vs. replace?
-                //         $('.sample').html($('.sample').html().replace(data.highlights[i].text_start, spn_start));
+                if (data.highlights.length > 0) {
+                    for (var i = 0; i < data.highlights.length; i++) {
+                        var textToHighlight = thisText.slice(data.highlights[i].text_start, data.highlights[i].text_end);
+                        var spn = '<span class="selectedYellow">' + textToHighlight + '</span>';
+                        // need to play with this more. Maybe insert vs. replace?
+                        $('.sample').html($('.sample').html().replace(textToHighlight, spn));
 
-                //     }
-                // }
+                    }
+                }
                 // if (data.user_1.commentsByUser.length > 0) {
                 //     for (var i = 0; i < data.user_1.commentsByUser.length; i++) {
                 //         $('.userComments').append('<i class="material-icons" id="comment">insert_comment</i>');
@@ -173,9 +145,17 @@ var checkForUserData = function(username) {
     ajax.done();
 };
 
-var getHighlightedTextPosition = function(thisText, textHighlightedByUser) {
+var getHighlightedTextPosition = function(textHighlightedByUser) {
     var start = thisText.indexOf(textHighlightedByUser);
     var end = start + textHighlightedByUser.length;
+    var ajax = $.ajax('/users/' + username + '/highlights', {
+        type: 'PUT',
+        data: { 'text_end': end, 'text_start': start },
+        dataType: 'json'
+
+    });
+    ajax.done();
+
     return thisText.slice(start, end);
 };
 

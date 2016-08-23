@@ -62,6 +62,7 @@ app.delete('/users', function(req, res) {
     })
 });
 
+// Get highlights and comments
 app.get('/users/:username', function(req, res, errback) {
     var username = req.params.username;
     User.findOne({ username: username }, function(err, user) {
