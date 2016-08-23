@@ -1,3 +1,7 @@
+// Load highlighted items of user onto webpage
+// Send comments to server
+// Load commens of user onto webpage
+
 var textHighlightedByUser;
 var cursorPosition;
 var id;
@@ -9,15 +13,17 @@ $(function() {
     checkForUserData(username);
     $(".sample")
         .mouseup(function() {
-            cursorPosition = { top: event.pageY, left: event.pageX }
+            var thisText = $(this).text();
             textHighlightedByUser = getSelectionText();
+            cursorPosition = { top: event.pageY, left: event.pageX }
             if (textHighlightedByUser != "") {
                 $(".highlightOptions").show().css({ 'top': event.pageY + 10, 'left': event.pageX });
                 if ($("#highlight").click(function() {
                         // LIKELY SPOT FOR DUPLICATE SPAN APPLICATIONS
                         // if (textHighlightedByUser = )
-                        var spn = '<span class="selectedYellow">' + textHighlightedByUser + '</span>'
-                        $('.sample').html($('.sample').html().replace(textHighlightedByUser, spn));
+                        var textToHighlight = getHighlightedTextPosition(thisText, textHighlightedByUser);
+                        var spn = '<span class="selectedYellow">' + textToHighlight + '</span>'
+                        $('.sample').html($('.sample').html().replace(textToHighlight, spn));
                         // console.log('logging THIS', $(this));
                         if ($(textHighlightedByUser).hasClass('selectedYellow')) {
                             console.log('already highlighted');
@@ -55,7 +61,7 @@ $(function() {
                                 }
                             }
                         });
-                        var ajax = $.ajax('/userData', {
+                        var ajax = $.ajax('/users', {
                             type: 'POST',
                             data: JSON.stringify(highlightedItem),
                             dataType: 'json',
@@ -87,42 +93,6 @@ $(function() {
 
 
 });
-
-var checkForUserData = function(username) {
-    var ajax = $.ajax('/users/' + username, {
-        type: 'GET',
-        dataType: 'json',
-        success: function(data) {
-            if (data == null) {
-                registerNewUser(username);
-            } else {
-                console.log('we got a match');
-                console.log(data);
-                // if (data.highlights.length > 0) {
-                //     for (var i = 0; i < data.highlights.length; i++) {
-                //         var spn_start = '<span class="selectedYellow">' + data.highlights[i].selectedText;
-                //         var spn_end = 
-                //         // need to play with this more. Maybe insert vs. replace?
-                //         $('.sample').html($('.sample').html().replace(data.highlights[i].text_start, spn_start));
-
-                //     }
-                // }
-                // if (data.user_1.commentsByUser.length > 0) {
-                //     for (var i = 0; i < data.user_1.commentsByUser.length; i++) {
-                //         $('.userComments').append('<i class="material-icons" id="comment">insert_comment</i>');
-
-                //     }
-                // }
-            }
-
-
-        },
-        error: function(err) {
-            console.log(err);
-        }
-    });
-    ajax.done();
-};
 
 $('#msgbox').dialog({
     position: 'right',
@@ -165,12 +135,54 @@ $('#msgbox').dialog({
             $(".highlightOptions").hide();
         }
     }
-})
+});
 
-function registerNewUser(username){
+var checkForUserData = function(username) {
+    var ajax = $.ajax('/users/' + username, {
+        type: 'GET',
+        dataType: 'json',
+        success: function(data) {
+            if (data == null) {
+                registerNewUser(username);
+            } else {
+                console.log('we got a match');
+                console.log(data);
+                // if (data.highlights.length > 0) {
+                //     for (var i = 0; i < data.highlights.length; i++) {
+                //         var spn_start = '<span class="selectedYellow">' + data.highlights[i].selectedText;
+                //         var spn_end = 
+                //         // need to play with this more. Maybe insert vs. replace?
+                //         $('.sample').html($('.sample').html().replace(data.highlights[i].text_start, spn_start));
+
+                //     }
+                // }
+                // if (data.user_1.commentsByUser.length > 0) {
+                //     for (var i = 0; i < data.user_1.commentsByUser.length; i++) {
+                //         $('.userComments').append('<i class="material-icons" id="comment">insert_comment</i>');
+
+                //     }
+                // }
+            }
+
+
+        },
+        error: function(err) {
+            console.log(err);
+        }
+    });
+    ajax.done();
+};
+
+var getHighlightedTextPosition = function(thisText, textHighlightedByUser) {
+    var start = thisText.indexOf(textHighlightedByUser);
+    var end = start + textHighlightedByUser.length;
+    return thisText.slice(start, end);
+};
+
+var registerNewUser = function(username) {
     var ajax = $.ajax('/users', {
         type: 'POST',
-        data: {username: username},
+        data: { username: username },
         dataType: 'string',
     });
     ajax.done(console.log('registered new user'));

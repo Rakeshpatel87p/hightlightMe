@@ -39,11 +39,12 @@ app.get('/users', function(req, res) {
 
 // Create New Users
 app.post('/users', function(req, res) {
+    console.log(req.body.username);
     User.create({
         username: req.body.username
     }, function(err, user) {
         if (err) {
-            return res.status(500).json({ message: "Registering User Error" })
+            return res.status(500).json({ message: "Registering User Error", err })
         }
         res.status(201).json(user);
     });
@@ -71,38 +72,37 @@ app.get('/users/:username', function(req, res, errback) {
         res.status(201).json(user);
     })
 });
-
-// Put Highlights - NOT WORKING
+// Needs work - see below
 app.put('/users/:username/highlights', function(req, res) {
     var username = { username: req.params.username };
     var highlight = {
-        text_end: req.body.text_end,
-        text_start: req.body.text_start
+        'text_end': req.body.text_end,
+        'text_start': req.body.text_start
     };
     // Not returning needed object
-    //User.findOne(username, { 'highlights.$': 1, new: true }, function(err, highlight) {
+
     User.findOne(username, function(err, user) {
-        var results = _.where(user.highlights, highlight);
+        // Not properly filtering out possible duplicates:
+        // 1) require statement looks good - line 10
+        // 2) Syntax is right.
+        // 3) Tried findWhere - no success
+        // var results = _.where(user.highlights, highlight );
+        var results = _.where(user.highlights, {
+            'text_end': req.body.text_end,
+            'text_start': req.body.text_start
+        });
+        console.log('results', results);
         if (results.length == 0) {
-            User.findOneAndUpdate(username, { $push: { highlights: highlight } }, function(error, data) {
-                console.log('errr', error)
+            User.findOneAndUpdate(username, { $push: { highlights: highlight } }, { new: true }, function(error, data) {
                 if (error) {
-                    res.status(500).json(err)
+                    res.status(500).json('Highlight Already Exists', error)
                 };
+                console.log('highlight already exists');
                 // res.status(201).json(data);
             });
         }
 
-        res.status(200).json({});
-        //console.log('highlight', highlight.highlights[0].text_start);
-        // if (highlight.text_start == highlight.highlights[].text_start)
-        // If start/end text matches a record, then update that record with new value
-        // Account for user that has highlight 1-10 and then highlights to 11/12++
-        // if (highlight.length == undefined) {
-
-        // } else {
-        //     console.log('record already exists');
-        // }
+        res.status(200).json(user);
     });
 });
 
@@ -110,8 +110,8 @@ app.put('/users/:username/highlights', function(req, res) {
 app.delete('/users/:username/highlights', function(req, res) {
     var username = { username: req.params.username };
     highlight = {
-        text_start: req.body.text_start,
-        text_end: req.body.text_end
+        text_end: req.body.text_end,
+        text_start: req.body.text_start
     }
 
     User.findOneAndUpdate(username, { $pull: { highlights: highlight } }, { new: true }, function(err, data) {
