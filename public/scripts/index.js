@@ -1,5 +1,10 @@
 // Send comments to server
 // Load comments of user onto webpage
+// Ensure no duplicates of highlights
+
+// Call and receive highlights data to/from heat map
+// Call and receive comments data to/from heat map
+// Design UI tools to manipulate data
 
 var textHighlightedByUser;
 var cursorPosition;
@@ -76,7 +81,6 @@ $('#msgbox').dialog({
         Okay: function(e) {
             var newComments = $('#ta').val();
             $(this).dialog('close');
-            // How to get newly appended items in diff positions, based on the cursor click
             $('<i class="material-icons" id="comment">insert_comment</i>').appendTo('.sample')
                 .css({
                     'position': 'absolute',
@@ -90,6 +94,7 @@ $('#msgbox').dialog({
 
             });
             $('#' + id).css(cursorPosition);
+            // Need to find way of bringing start/end values here.
             // var item = { 'comment': newComments, 'selectedText': 'sample' 'text_end': 'sample'};
             // var ajax = $.ajax('/user/' + username + '/comments', {
             //     type: 'PUT',
