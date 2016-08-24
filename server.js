@@ -21,7 +21,7 @@ mongoose.connection.on('error', function(err) {
 
 var userSchema = mongoose.Schema({
     username: { type: String, unique: true },
-    comments: [{ comment: String, text_end: Number, text_start: Number }], // content, when they were made??
+    comments: [{ comment: String, text_end: Number, text_start: Number, cursorPositionTop: Number, cursorPositionLeft: Number }], // content, when they were made??
     highlights: [{ text_end: Number, text_start: Number }] // user? date?
 }, { timestamps: true });
 
@@ -123,16 +123,27 @@ app.delete('/users/:username/highlights', function(req, res) {
     })
 });
 
+// Get comments
+app.get('/users/:username/comments/:positionTop/:positionLeft', function(req, res){
+    User.findOne(username: req.params.username, 'cursorPositionTop': req.params.positionTop, 'cursorPositionLeft': req.params.positionLeft, function(err, comment){
+        if (err){
+            res.status(500).json(err);
+        }
+        res.status(201).json(comment)
+    });
+});
+
 // Put comments
-// more specificity for url /:id
 app.put('/users/:username/comments', function(req, res) {
     var query = { username: req.params.username };
     var comment = {
         comment: req.body.comment,
         text_end: req.body.text_end,
         text_start: req.body.text_start,
+        cursorPositionTop: req.body.cursorPositionTop,
+        cursorPositionLeft: req.body.cursorPositionLeft
     };
-
+    console.log(comment);
     User.findOneAndUpdate(query, { $push: { comments: comment } }, { upsert: true, new: true }, function(error, data) {
         if (error) {
             res.status(500).json('Comment not uploaded');

@@ -1,5 +1,5 @@
-// Send comments to server
-// Load comments of user onto webpage
+//Filter comments for that position
+//Send comment back
 // Ensure no duplicates of highlights
 
 // Call and receive highlights data to/from heat map
@@ -12,20 +12,26 @@ var id;
 var date = $.datepicker.formatDate('yy/mm/dd', new Date());
 var thisText = $('.sample').text();
 var username;
+var start;
+var end;
 
 $(function() {
     username = prompt('What is your username? If not registered, please write one');
+    console.log(username);
     checkForUserData(username);
     $(".sample")
         .mouseup(function() {
             textHighlightedByUser = getSelectionText();
-            cursorPosition = { top: event.pageY, left: event.pageX }
+            start = thisText.indexOf(textHighlightedByUser);
+            end = start + textHighlightedByUser.length;
+            // Add 2 for comment flag position.
+            cursorPosition = { top: event.pageY - 36, left: event.pageX - 44 }
             if (textHighlightedByUser != "") {
                 $(".highlightOptions").show().css({ 'top': event.pageY + 10, 'left': event.pageX });
                 if ($("#highlight").click(function() {
                         // LIKELY SPOT FOR DUPLICATE SPAN APPLICATIONS
                         // Still putting up duplicate highlights
-                        var textToHighlight = getHighlightedTextPosition(textHighlightedByUser);
+                        var textToHighlight = getHighlightedTextPosition(textHighlightedByUser, end, start);
                         var spn = '<span class="selectedYellow">' + textToHighlight + '</span>'
                         $('.sample').html($('.sample').html().replace(textToHighlight, spn));
                         // console.log('logging THIS', $(this));
@@ -52,7 +58,6 @@ $(function() {
                 if ($("#comment").click(function(event) {
                         event.preventDefault();
                         var id = $(this).data("id");
-
                         $('#msgbox').dialog('open').css({ 'top': event.pageY - 100, 'left': event.pageX });
                     }));
 
@@ -70,7 +75,24 @@ $(function() {
 
         });
 
-
+    $('.sample').on('click', '#indivComment', function(event) {
+        // Target the element that was clicked
+        // Get the attribute value
+        // Use this value to filter data and return the comment
+        var position = $(event.target).closest('#indivComment').position();
+        console.log(position.top, position.left);
+        var ajax = $.ajax('/users/' + username + '/comments/' + position.top + '/' + position.left, {
+            type: 'GET',
+            parameters: 
+            dataType: 'json',
+            success: function(data) {
+                console.log(data)
+            },
+            error: function(err) {
+                console.log(err)
+            }
+        });
+    });
 });
 
 $('#msgbox').dialog({
@@ -79,12 +101,12 @@ $('#msgbox').dialog({
     modal: true,
     buttons: {
         Okay: function(e) {
-            var newComments = $('#ta').val();
+            var userComment = $('#ta').val();
             $(this).dialog('close');
-            $('<i class="material-icons" id="comment">insert_comment</i>').appendTo('.sample')
+            $('<i class="material-icons id="indivComment">insert_comment</i>').appendTo('.sample')
                 .css({
                     'position': 'absolute',
-                    'top': cursorPosition.top + 2,
+                    'top': cursorPosition.top,
                     'left': cursorPosition.left,
                     'opacity': 0.4
                 });
@@ -94,15 +116,13 @@ $('#msgbox').dialog({
 
             });
             $('#' + id).css(cursorPosition);
-            // Need to find way of bringing start/end values here.
-            // var item = { 'comment': newComments, 'selectedText': 'sample' 'text_end': 'sample'};
-            // var ajax = $.ajax('/user/' + username + '/comments', {
-            //     type: 'PUT',
-            //     data: JSON.stringify(item),
-            //     dataType: 'json',
-            //     contentType: 'application/json',
-            // });
-            // ajax.done(console.log('PostedItem:', item));
+            var newComment = { 'comment': userComment, 'text_end': end, 'text_start': start, 'cursorPositionTop': cursorPosition.top, 'cursorPositionLeft': cursorPosition.left };
+            var ajax = $.ajax('/users/' + username + '/comments', {
+                type: 'PUT',
+                data: newComment,
+                dataType: 'json',
+            });
+            ajax.done();
             $(".highlightOptions").hide();
 
         },
@@ -125,6 +145,7 @@ var checkForUserData = function(username) {
                 registerNewUser(username);
             } else {
                 if (data.highlights.length > 0) {
+                    console.log(data);
                     for (var i = 0; i < data.highlights.length; i++) {
                         var textToHighlight = thisText.slice(data.highlights[i].text_start, data.highlights[i].text_end);
                         var spn = '<span class="selectedYellow">' + textToHighlight + '</span>';
@@ -133,14 +154,19 @@ var checkForUserData = function(username) {
 
                     }
                 }
-                // if (data.user_1.commentsByUser.length > 0) {
-                //     for (var i = 0; i < data.user_1.commentsByUser.length; i++) {
-                //         $('.userComments').append('<i class="material-icons" id="comment">insert_comment</i>');
 
-                //     }
-                // }
+                if (data.comments.length > 0) {
+                    for (var i = 0; i < data.comments.length; i++) {
+                        $('<i class="material-icons" id="indivComment">insert_comment</i>').appendTo('.sample')
+                            .css({
+                                'position': 'absolute',
+                                'top': data.comments[i].cursorPositionTop,
+                                'left': data.comments[i].cursorPositionLeft,
+                                'opacity': 0.4
+                            });
+                    }
+                }
             }
-
 
         },
         error: function(err) {
@@ -150,9 +176,7 @@ var checkForUserData = function(username) {
     ajax.done();
 };
 
-var getHighlightedTextPosition = function(textHighlightedByUser) {
-    var start = thisText.indexOf(textHighlightedByUser);
-    var end = start + textHighlightedByUser.length;
+var getHighlightedTextPosition = function(textHighlightedByUser, end, start) {
     var ajax = $.ajax('/users/' + username + '/highlights', {
         type: 'PUT',
         data: { 'text_end': end, 'text_start': start },
