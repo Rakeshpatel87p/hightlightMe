@@ -1,6 +1,7 @@
 //Filter comments for that position
 //Send comment back
 // Ensure no duplicates of highlights
+// Might have to do one to many relationship of data
 
 // Call and receive highlights data to/from heat map
 // Call and receive comments data to/from heat map
@@ -74,20 +75,20 @@ $(function() {
             //         console.log(textHighlightedByUser);
 
         });
-
+    //UNABLE to click on newly created comments - why?
+    // Duplicating appendage on multiple clicks
+    // Comment flags being placed on top of each other
     $('.sample').on('click', '#indivComment', function(event) {
-        // Target the element that was clicked
-        // Get the attribute value
-        // Use this value to filter data and return the comment
         var position = $(event.target).closest('#indivComment').position();
-        // How ugly does this look?
-        var ajax = $.ajax('/users/' + username + '/comments/' + position.left + '/' + position.top  , {
-            // DO you send data via GET requests?
+        var ajax = $.ajax('/users/' + username + '/comments/' + position.left + '/' + position.top, {
             type: 'GET',
             contentType: "application/json",
             dataType: 'json',
             success: function(data) {
-                console.log(data)
+                // console.log($(event.target).closest('#indivComment').append('<p>Hey There</p>'));
+                console.log(data);
+                $('<p id="userCommentAfterClick">' + data.comment + '</p>').appendTo($(event.target).closest('#indivComment'))
+                    .css({ 'top': data.cursorPositionTop, 'left': data.cursorPositionLeft }) // Take comment and date, put in division, make division hidden (close sign, click outside)
             },
             error: function(err) {
                 console.log(err)

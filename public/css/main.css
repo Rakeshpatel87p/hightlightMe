@@ -55,6 +55,14 @@ body {
     font-feature-settings: 'liga';
 }
 
+#userCommentAfterClick {
+    position: absolute;
+    background-color: red;
+    font-family: 'Open Sans', sans-serif;
+    color:black;
+    opacity: 1;
+}
+
 .material-icons:hover {
     cursor: pointer;
     opacity: 1;

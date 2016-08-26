@@ -24,8 +24,8 @@ mongoose.connection.on('error', function(err) {
 
 var userSchema = mongoose.Schema({
     username: { type: String, unique: true },
-    comments: [{ comment: String, text_end: Number, text_start: Number, cursorPositionTop: Number, cursorPositionLeft: Number }], // content, when they were made??
-    highlights: [{ text_end: Number, text_start: Number }] // user? date?
+    comments: [{ comment: String, text_end: Number, text_start: Number, cursorPositionTop: Number, cursorPositionLeft: Number, time: { type: Date, default: Date.now } }],
+    highlights: [{ text_end: Number, text_start: Number, time: { type: Date, default: Date.now } }]
 }, { timestamps: true });
 
 var User = mongoose.model('User', userSchema)
@@ -143,28 +143,14 @@ app.delete('/users/:username/highlights', function(req, res) {
 
 // Get comments
 app.get('/users/:username/comments/:positionLeft/:positionTop', function(req, res) {
-    // var positionQuery = {
-    //     cursorPositionTop: req.params.positionTop,
-    //     cursorPositionLeft: req.params.positionLeft
-    // };
     User.findOne({ username: req.params.username }, function(err, user) {
         if (err) {
             res.status(500).json(err);
         }
-        // Underscore not working properly
-        // Need quotes?
-        // console.log('user comments', user.comments);
         var commentClickedUpon = _.findWhere(user.comments, {
             cursorPositionLeft: parseInt(req.params.positionLeft),
             cursorPositionTop: parseInt(req.params.positionTop)
         });
-
-        console.log(commentClickedUpon);
-        // Tested id using _.where - returned empty array
-        // var test = _.where(user, {
-        //     _id: '57bddc64d1b94aae30ea3fe8',
-        // });
-        // console.log(test);
         res.status(201).json(commentClickedUpon);
     });
 });
