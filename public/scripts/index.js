@@ -79,7 +79,13 @@ $(function() {
     // Duplicating appendage on multiple clicks
     // Comment flags being placed on top of each other
     $('.sample').on('click', '#indivComment', function(event) {
-        var position = $(event.target).closest('#indivComment').position();
+        var position = $(event.target).closest('#indivCommentDiv').position();
+        console.log($(event.target).closest('#indivComment'));
+        // If this p tag isn't visible, dont make this call.
+        // Want to keep multiple ones open for student review
+        // PROBLEM: not targetting my division here.
+        console.log(!$(event.target).closest('#indivCommentDiv').contains('<p id="userCommentAfterClick">'));
+        // if (!$(event.target).closest('#indivCommentDiv').has('p'))
         var ajax = $.ajax('/users/' + username + '/comments/' + position.left + '/' + position.top, {
             type: 'GET',
             contentType: "application/json",
@@ -87,8 +93,8 @@ $(function() {
             success: function(data) {
                 // console.log($(event.target).closest('#indivComment').append('<p>Hey There</p>'));
                 console.log(data);
-                $('<p id="userCommentAfterClick">' + data.comment + '</p>').appendTo($(event.target).closest('#indivComment'))
-                    .css({ 'top': data.cursorPositionTop, 'left': data.cursorPositionLeft }) // Take comment and date, put in division, make division hidden (close sign, click outside)
+                $('<p id="userCommentAfterClick">' + data.comment + '</p>').prependTo($(event.target).closest('#indivCommentDiv'))
+                    // .css({ 'top': data.cursorPositionTop - 57, 'left': data.cursorPositionLeft - 2 }) // Take comment and date, put in division, make division hidden (close sign, click outside)
             },
             error: function(err) {
                 console.log(err)
@@ -105,7 +111,7 @@ $('#msgbox').dialog({
         Okay: function(e) {
             var userComment = $('#ta').val();
             $(this).dialog('close');
-            $('<i class="material-icons id="indivComment">insert_comment</i>').appendTo('.sample')
+            $('<div id="indivCommentDiv"><i class="material-icons id="indivComment">insert_comment</i></div>').appendTo('.sample')
                 .css({
                     'position': 'absolute',
                     'top': cursorPosition.top,
@@ -159,7 +165,7 @@ var checkForUserData = function(username) {
 
                 if (data.comments.length > 0) {
                     for (var i = 0; i < data.comments.length; i++) {
-                        $('<i class="material-icons" id="indivComment">insert_comment</i>').appendTo('.sample')
+                        $('<div id="indivCommentDiv"><i class="material-icons" id="indivComment">insert_comment</i></div>').appendTo('.sample')
                             .css({
                                 'position': 'absolute',
                                 'top': data.comments[i].cursorPositionTop,
