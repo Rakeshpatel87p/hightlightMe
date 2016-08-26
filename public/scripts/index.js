@@ -80,10 +80,11 @@ $(function() {
         // Get the attribute value
         // Use this value to filter data and return the comment
         var position = $(event.target).closest('#indivComment').position();
-        console.log(position.top, position.left);
-        var ajax = $.ajax('/users/' + username + '/comments/' + position.top + '/' + position.left, {
+        // How ugly does this look?
+        var ajax = $.ajax('/users/' + username + '/comments/' + position.left + '/' + position.top  , {
+            // DO you send data via GET requests?
             type: 'GET',
-            parameters: 
+            contentType: "application/json",
             dataType: 'json',
             success: function(data) {
                 console.log(data)

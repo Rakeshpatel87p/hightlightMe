@@ -2,6 +2,9 @@
 // Delete highlights
 // Stop storing duplicate values
 
+// Create unique records for embedded docs
+// VERSUS one to many, creating relationships
+
 var express = require('express');
 var mongoose = require('mongoose');
 var app = express();
@@ -81,7 +84,6 @@ app.put('/users/:username/highlights', function(req, res) {
         'text_start': req.body.text_start
     };
     // Not returning needed object
-
     User.findOne(username, function(err, user) {
         // Not properly filtering out possible duplicates:
         // 1) require statement looks good - line 10
@@ -92,16 +94,32 @@ app.put('/users/:username/highlights', function(req, res) {
             'text_end': req.body.text_end,
             'text_start': req.body.text_start
         });
-        console.log('results', results);
-        if (results.length == 0) {
-            User.findOneAndUpdate(username, { $push: { highlights: highlight } }, { new: true }, function(error, data) {
-                if (error) {
-                    res.status(500).json('Highlight Already Exists', error)
-                };
-                console.log('highlight already exists');
-                // res.status(201).json(data);
-            });
+        for (var i = 0; i < user.highlights.length; i++) {
+            if (user.highlights[i].text_end == highlight.text_end && user.highlights[i].text_start == highlight.text_start) {
+                console.log(user.highlights[i]);
+            } else {
+                console.log(user.highlights[i], 'else');
+                User.findOneAndUpdate(username, { $push: { highlights: highlight } }, { new: true }, function(error, data) {
+                    if (error) {
+                        res.status(500).json('Highlight Already Exists', error)
+                    };
+                    console.log('highlight created');
+                    // res.status(201).json(data);
+                });
+            }
+
         }
+        // console.log('highlight', highlight, 'results equal 0', results.length == 0);
+
+        // if (results.length == 0) {
+        //     User.findOneAndUpdate(username, { $push: { highlights: highlight } }, { new: true }, function(error, data) {
+        //         if (error) {
+        //             res.status(500).json('Highlight Already Exists', error)
+        //         };
+        //         console.log('highlight created');
+        //         // res.status(201).json(data);
+        //     });
+        // }
 
         res.status(200).json(user);
     });
@@ -124,12 +142,30 @@ app.delete('/users/:username/highlights', function(req, res) {
 });
 
 // Get comments
-app.get('/users/:username/comments/:positionTop/:positionLeft', function(req, res){
-    User.findOne(username: req.params.username, 'cursorPositionTop': req.params.positionTop, 'cursorPositionLeft': req.params.positionLeft, function(err, comment){
-        if (err){
+app.get('/users/:username/comments/:positionLeft/:positionTop', function(req, res) {
+    // var positionQuery = {
+    //     cursorPositionTop: req.params.positionTop,
+    //     cursorPositionLeft: req.params.positionLeft
+    // };
+    User.findOne({ username: req.params.username }, function(err, user) {
+        if (err) {
             res.status(500).json(err);
         }
-        res.status(201).json(comment)
+        // Underscore not working properly
+        // Need quotes?
+        // console.log('user comments', user.comments);
+        var commentClickedUpon = _.findWhere(user.comments, {
+            cursorPositionLeft: parseInt(req.params.positionLeft),
+            cursorPositionTop: parseInt(req.params.positionTop)
+        });
+
+        console.log(commentClickedUpon);
+        // Tested id using _.where - returned empty array
+        // var test = _.where(user, {
+        //     _id: '57bddc64d1b94aae30ea3fe8',
+        // });
+        // console.log(test);
+        res.status(201).json(commentClickedUpon);
     });
 });
 
@@ -140,8 +176,8 @@ app.put('/users/:username/comments', function(req, res) {
         comment: req.body.comment,
         text_end: req.body.text_end,
         text_start: req.body.text_start,
-        cursorPositionTop: req.body.cursorPositionTop,
-        cursorPositionLeft: req.body.cursorPositionLeft
+        cursorPositionLeft: req.body.cursorPositionLeft,
+        cursorPositionTop: req.body.cursorPositionTop
     };
     console.log(comment);
     User.findOneAndUpdate(query, { $push: { comments: comment } }, { upsert: true, new: true }, function(error, data) {
