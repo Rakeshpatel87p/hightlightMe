@@ -78,6 +78,16 @@ body {
     opacity: 1;
 }
 
+.closeCommentIcon, 
+.deleteCommentIcon {
+    position: absolute;
+}
+
+
+.commentOptions {
+    position:absolute;
+}
+
 * {
 /*    font-size: 10px;
 */} //for default dialog font/button size

@@ -82,8 +82,8 @@ $(function() {
     // Comment flags being placed on top of each other
     $('.sample').on('click', '#indivCommentDiv', function(event) {
         var position = $(event.target).closest('#indivCommentDiv').position();
+        console.log($(event.target).closest('.indivCommentContainer').position());
         // Returns False. Never true. Need to target parent div
-        console.log($(event.target).parent().has('<p>'));
 
         // If this p tag is visible, dont make this call.
         // Want to keep multiple ones open for student review
@@ -95,12 +95,23 @@ $(function() {
             contentType: "application/json",
             dataType: 'json',
             success: function(data) {
+                console.log(data);
                 // console.log($(event.target).closest('#indivComment').append('<p>Hey There</p>'));
                 $('<p id="userCommentAfterClick">' + data.comment + '</p>').prependTo($(event.target).closest('#indivCommentDiv'))
                     .css({
                         'bottom': 4,
                     });
-                $('<i class="fa fa-times" aria-hidden="true"></i>').prependTo($(event.target).closest('#indivCommentDiv'));
+
+                $('<i class="material-icons" id="closeCommentIcon">highlight_off</i>').appendTo($('.indivCommentContainer'))
+                    .css({
+                        'bottom': data.cursorPositionTop,
+                        'left': data.cursorPositionLeft
+                    });
+                $('<i class="material-icons" id="deleteCommentIcon">delete</i>').appendTo($('.indivCommentContainer'))
+                    .css({
+                        'bottom': data.cursorPositionTop + 50,
+                        'left': data.cursorPositionLeft + 40
+                    });
                 // if ($('.sample').has(('<p id="userCommentAfterClick">' + data.comment + '</p>')) == false) {
 
                 // }
@@ -110,6 +121,13 @@ $(function() {
                 console.log(err)
             }
         });
+    });
+
+    $('.sample').on('click', '.closeCommentIcon', function(event) {
+        // Need to close right comment box.
+        // Target by proximity
+        $(event.target).closest('#indivCommentDiv').hide();
+        console.log($(event.target).closest('#indivCommentDiv'));
     });
 });
 
@@ -180,7 +198,7 @@ var checkForUserData = function(username) {
 
                 if (data.comments.length > 0) {
                     for (var i = 0; i < data.comments.length; i++) {
-                        $('<div id="indivCommentDiv"><i class="material-icons" id="indivComment">insert_comment</i></div>').appendTo('.sample')
+                        $('<div class="indivCommentContainer"><div id="indivCommentDiv"><i class="material-icons" id="indivComment">insert_comment</i></div></div>').appendTo('.sample')
                             .css({
                                 'position': 'absolute',
                                 'top': data.comments[i].cursorPositionTop,
