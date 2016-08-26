@@ -77,25 +77,22 @@ $(function() {
             //         console.log(textHighlightedByUser);
 
         });
-    //UNABLE to click on newly created comments - why?
     // Duplicating appendage on multiple clicks
     // Comment flags being placed on top of each other
     $('.sample').on('click', '#indivCommentDiv', function(event) {
-        var position = $(event.target).closest('#indivCommentDiv').position();
-        console.log($(event.target).closest('.indivCommentContainer').position());
+        var position = $(event.target).closest('.indivCommentContainer').position();
         // Returns False. Never true. Need to target parent div
-
+        console.log($('#indivCommentDiv').children());
         // If this p tag is visible, dont make this call.
         // Want to keep multiple ones open for student review
         // PROBLEM: not targetting my division here.
         // console.log(!$(event.target).closest('#indivCommentDiv').contains('<p id="userCommentAfterClick">'));
-        // if (!$(event.target).closest('#indivCommentDiv').has('p'))
+        // if (!$(event.target).closest('#indivCommentDiv').has('p')) else just show the relevant items
         var ajax = $.ajax('/users/' + username + '/comments/' + position.left + '/' + position.top, {
             type: 'GET',
             contentType: "application/json",
             dataType: 'json',
             success: function(data) {
-                console.log(data);
                 // console.log($(event.target).closest('#indivComment').append('<p>Hey There</p>'));
                 $('<p id="userCommentAfterClick">' + data.comment + '</p>').prependTo($(event.target).closest('#indivCommentDiv'))
                     .css({
@@ -123,11 +120,14 @@ $(function() {
         });
     });
 
-    $('.sample').on('click', '.closeCommentIcon', function(event) {
+    $('.sample').on('click', '#closeCommentIcon', function(event) {
         // Need to close right comment box.
         // Target by proximity
-        $(event.target).closest('#indivCommentDiv').hide();
-        console.log($(event.target).closest('#indivCommentDiv'));
+        $('#closeCommentIcon').siblings('#indivCommentDiv').children().first().hide();
+        $('#closeCommentIcon').hide();
+        $('#deleteCommentIcon').hide();
+        // $(event.target).closest('#indivCommentDiv').hide();
+        console.log($('#closeCommentIcon').siblings('#indivCommentDiv'));
     });
 });
 
@@ -145,7 +145,7 @@ $('#msgbox').dialog({
         Okay: function(e) {
             var userComment = $('#ta').val();
             $(this).dialog('close');
-            $('<div id="indivCommentDiv"><i class="material-icons id="indivComment">insert_comment</i></div>').appendTo('.sample')
+            $('<div class="indivCommentContainer"><div id="indivCommentDiv"><i class="material-icons id="indivComment">insert_comment</i></div></div>').appendTo('.sample')
                 .css({
                     'position': 'absolute',
                     'top': cursorPosition.top,
