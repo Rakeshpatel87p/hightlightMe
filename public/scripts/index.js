@@ -1,11 +1,13 @@
-//Filter comments for that position
-//Send comment back
-// Ensure no duplicates of highlights
-// Might have to do one to many relationship of data
+// Comments:
+// Closing comments
+// Delete comments permanently
 
-// Call and receive highlights data to/from heat map
-// Call and receive comments data to/from heat map
-// Design UI tools to manipulate data
+// Multiple appendages of comments on subsequent clicks
+
+// Comments link - open/close all
+
+// Highlights
+// Prevent duplicate highlights from going into server
 
 var textHighlightedByUser;
 var cursorPosition;
@@ -78,13 +80,15 @@ $(function() {
     //UNABLE to click on newly created comments - why?
     // Duplicating appendage on multiple clicks
     // Comment flags being placed on top of each other
-    $('.sample').on('click', '#indivComment', function(event) {
+    $('.sample').on('click', '#indivCommentDiv', function(event) {
         var position = $(event.target).closest('#indivCommentDiv').position();
-        console.log($(event.target).closest('#indivComment'));
-        // If this p tag isn't visible, dont make this call.
+        // Returns False. Never true. Need to target parent div
+        console.log($(event.target).parent().has('<p>'));
+
+        // If this p tag is visible, dont make this call.
         // Want to keep multiple ones open for student review
         // PROBLEM: not targetting my division here.
-        console.log(!$(event.target).closest('#indivCommentDiv').contains('<p id="userCommentAfterClick">'));
+        // console.log(!$(event.target).closest('#indivCommentDiv').contains('<p id="userCommentAfterClick">'));
         // if (!$(event.target).closest('#indivCommentDiv').has('p'))
         var ajax = $.ajax('/users/' + username + '/comments/' + position.left + '/' + position.top, {
             type: 'GET',
@@ -92,9 +96,15 @@ $(function() {
             dataType: 'json',
             success: function(data) {
                 // console.log($(event.target).closest('#indivComment').append('<p>Hey There</p>'));
-                console.log(data);
                 $('<p id="userCommentAfterClick">' + data.comment + '</p>').prependTo($(event.target).closest('#indivCommentDiv'))
-                    // .css({ 'top': data.cursorPositionTop - 57, 'left': data.cursorPositionLeft - 2 }) // Take comment and date, put in division, make division hidden (close sign, click outside)
+                    .css({
+                        'bottom': 4,
+                    });
+                $('<i class="fa fa-times" aria-hidden="true"></i>').prependTo($(event.target).closest('#indivCommentDiv'));
+                // if ($('.sample').has(('<p id="userCommentAfterClick">' + data.comment + '</p>')) == false) {
+
+                // }
+                // .css({ 'top': data.cursorPositionTop - 57, 'left': data.cursorPositionLeft - 2 }) // Take comment and date, put in division, make division hidden (close sign, click outside)
             },
             error: function(err) {
                 console.log(err)
@@ -107,6 +117,12 @@ $('#msgbox').dialog({
     position: 'right',
     autoOpen: false,
     modal: true,
+    open: function() {
+        emptyContentBox = $('#msgbox').html()
+    },
+    close: function() {
+        $('#msgbox').html(emptyContentBox);
+    },
     buttons: {
         Okay: function(e) {
             var userComment = $('#ta').val();
@@ -116,7 +132,6 @@ $('#msgbox').dialog({
                     'position': 'absolute',
                     'top': cursorPosition.top,
                     'left': cursorPosition.left,
-                    'opacity': 0.4
                 });
             $('.userComments i').attr('id', function(i) {
                 id = 'number' + (i + 1);
@@ -170,7 +185,6 @@ var checkForUserData = function(username) {
                                 'position': 'absolute',
                                 'top': data.comments[i].cursorPositionTop,
                                 'left': data.comments[i].cursorPositionLeft,
-                                'opacity': 0.4
                             });
                     }
                 }

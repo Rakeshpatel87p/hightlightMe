@@ -55,6 +55,14 @@ body {
     font-feature-settings: 'liga';
 }
 
+#indivCommentDiv {
+    opacity: 0.4;
+}
+
+#indivCommentDiv:hover {
+    opacity: 1;
+}
+
 #userCommentAfterClick {
     position: absolute;
     background-color: red;
@@ -96,10 +104,10 @@ textarea {}
     visibility: hidden;
 }
 
-.userComments {
+/*.userComments {
 	opacity: 0.5;
 }
-
-.userComments:hover {
+*/
+/*.userComments:hover {
 	opacity: 1;
-}
+}*/
