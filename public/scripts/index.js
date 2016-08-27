@@ -87,8 +87,7 @@ $(function() {
     // });
     // Comment flags being placed on top of each other
     $('.sample').on('click', '.indivCommentDiv', function(event) {
-        console.log('onSampleClick');
-        $('.userCommentAfterClick').show();
+        // $('.userCommentAfterClick').show();
         var position = $(event.target).closest('.indivCommentContainer').position();
         // Returns False. Never true. Need to target parent div
         // If this p tag is visible, dont make this call.
@@ -102,30 +101,28 @@ $(function() {
             contentType: "application/json",
             dataType: 'json',
             success: function(data) {
-                console.log(data);
-                // console.log($(event.target).closest('#indivComment').append('<p>Hey There</p>'));
-                if ($('.closeCommentIcon').length == 0) {
-                    $('<p class="closeCommentIcon userCommentAfterClick">' + data.comment + '</p>').prependTo($(event.target).closest('.indivCommentDiv'))
+                if ($(event.target).closest('.indivCommentContainer').has('.userCommentAfterClick').length == 0) {
+                    $('<p class="userCommentAfterClick">' + data.comment + '</p>').prependTo($(event.target).closest('.indivCommentDiv'))
                         .css({
                             'bottom': 4,
                         });
+                    $('<i class="material-icons closeCommentIcon">highlight_off</i>').appendTo($(event.target).closest('.indivCommentContainer'))
+                        .css({
+                            'bottom': data.cursorPositionTop,
+                            'left': data.cursorPositionLeft
+                        });
+                    $('<i class="material-icons deleteCommentIcon">delete</i>').appendTo($(event.target).closest('.indivCommentContainer'))
+                        .css({
+                            'bottom': data.cursorPositionTop + 50,
+                            'left': data.cursorPositionLeft + 40
+                        });
+                } else {
+                    $(event.target).closest('.userCommentAfterClick').show();
+                    $(event.target).closest('.closeCommentIcon').show();
+                    $(event.target).closest('.deleteCommentIcon').show();
                 }
 
-                $('<i class="material-icons closeCommentIcon">highlight_off</i>').appendTo($('.indivCommentContainer'))
-                    .css({
-                        'bottom': data.cursorPositionTop,
-                        'left': data.cursorPositionLeft
-                    });
-                $('<i class="material-icons deleteCommentIcon">delete</i>').appendTo($('.indivCommentContainer'))
-                    .css({
-                        'bottom': data.cursorPositionTop + 50,
-                        'left': data.cursorPositionLeft + 40
-                    });
-                // if ($('.sample').has(('<p id="userCommentAfterClick">' + data.comment + '</p>')) == false) {
 
-                // }
-                // .css({ 'top': data.cursorPositionTop - 57, 'left': data.cursorPositionLeft - 2 }) // Take comment and date, put in division, make division hidden (close sign, click outside)
-            console.log('length of closeCOmmentIcon', $('.closeCommentIcon').length);
             },
             error: function(err) {
                 console.log(err)
@@ -135,10 +132,9 @@ $(function() {
     });
 
     $('.sample').on('click', '.closeCommentIcon', function(event) {
-        console.log("hi");
         // Need to close right comment box.
         // Target by proximity
-        $('.closeCommentIcon').siblings('.indivCommentDiv').children().first().hide();
+        $(event.target).closest('.closeCommentIcon').siblings('.indivCommentDiv').children().first().hide();
         $('.closeCommentIcon').hide();
         $('.deleteCommentIcon').hide();
         // $(event.target).closest('#indivCommentDiv').hide();
