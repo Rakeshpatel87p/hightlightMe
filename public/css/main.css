@@ -6,7 +6,7 @@ body {
 
 .body {
     position: absolute;
-    top:0;
+    top: 0;
     right: 0;
     left: 0;
     bottom: 0;
@@ -23,12 +23,12 @@ body {
 .highlightOptions {
     display: none;
     position: absolute;
-    background-color:orange;
+    background-color: orange;
     opacity: 0.7;
 }
 
 .highlightOptions:hover {
-	opacity: 1;
+    opacity: 1;
 }
 
 .sampl .material-icons {
@@ -55,19 +55,11 @@ body {
     font-feature-settings: 'liga';
 }
 
-.indivCommentDiv {
-    opacity: 0.4;
-}
-
-.indivCommentDiv:hover {
-    opacity: 1;
-}
-
 .userCommentAfterClick {
     position: absolute;
     background-color: red;
     font-family: 'Open Sans', sans-serif;
-    color:black;
+    color: black;
     opacity: 1;
     font-size: 20px;
     padding: 0.3%;
@@ -75,22 +67,29 @@ body {
 
 .material-icons:hover {
     cursor: pointer;
+}
+
+.closeCommentIcon,
+.deleteCommentIcon {
+    background-color: yellow;
+}
+
+.indivCommentContainer {
+    opacity: 0.4;
+}
+
+.indivCommentContainer:hover {
     opacity: 1;
 }
 
-.closeCommentIcon, 
-.deleteCommentIcon {
+.commentOptions {
     position: absolute;
 }
 
-
-.commentOptions {
-    position:absolute;
-}
-
 * {
-/*    font-size: 10px;
-*/} //for default dialog font/button size
+    /*    font-size: 10px;
+*/
+} //for default dialog font/button size
 .hide {
     display: none;
 }
@@ -99,7 +98,7 @@ textarea {}
 
 #msgbox {
     font-size: 16px;
-    left:-600px;
+    left: -600px;
 }
 
 #msgbox p {
@@ -114,10 +113,13 @@ textarea {}
     visibility: hidden;
 }
 
+
 /*.userComments {
-	opacity: 0.5;
+    opacity: 0.5;
 }
 */
+
+
 /*.userComments:hover {
-	opacity: 1;
+    opacity: 1;
 }*/

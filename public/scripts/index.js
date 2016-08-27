@@ -107,19 +107,19 @@ $(function() {
                             'bottom': 4,
                         });
                     $('<i class="material-icons closeCommentIcon">highlight_off</i>').appendTo($(event.target).closest('.indivCommentContainer'))
-                        .css({
-                            'bottom': data.cursorPositionTop,
-                            'left': data.cursorPositionLeft
-                        });
-                    $('<i class="material-icons deleteCommentIcon">delete</i>').appendTo($(event.target).closest('.indivCommentContainer'))
-                        .css({
-                            'bottom': data.cursorPositionTop + 50,
-                            'left': data.cursorPositionLeft + 40
-                        });
+                        // .css({
+                        //     'bottom': 55,
+                        //     'left': data.cursorPositionLeft
+                        // });
+                    $('<i class="material-icons deleteCommentIcon">delete</i>').appendTo($(event.target).closest('.indivCommentContainer'));
+                        // .css({
+                        //     'bottom': data.cursorPositionTop + 50,
+                        //     'left': data.cursorPositionLeft + 40
+                        // });
                 } else {
-                    $(event.target).closest('.userCommentAfterClick').show();
-                    $(event.target).closest('.closeCommentIcon').show();
-                    $(event.target).closest('.deleteCommentIcon').show();
+                    $(event.target).closest('.indivCommentDiv').children().first().show();
+                    $(event.target).closest('.indivCommentContainer').children('.closeCommentIcon').show();
+                    $(event.target).closest('.indivCommentContainer').children('.deleteCommentIcon').show();
                 }
 
 
@@ -135,8 +135,8 @@ $(function() {
         // Need to close right comment box.
         // Target by proximity
         $(event.target).closest('.closeCommentIcon').siblings('.indivCommentDiv').children().first().hide();
-        $('.closeCommentIcon').hide();
-        $('.deleteCommentIcon').hide();
+        $(event.target).closest('.indivCommentContainer').children('.closeCommentIcon').hide();
+        $(event.target).closest('.indivCommentContainer').children('.deleteCommentIcon').hide();
         // $(event.target).closest('#indivCommentDiv').hide();
     });
 });
