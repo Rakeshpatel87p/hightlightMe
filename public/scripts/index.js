@@ -78,33 +78,45 @@ $(function() {
 
         });
     // Duplicating appendage on multiple clicks
+    // it is dynamic (doesn't exist yet)
+    // $('body').on('click', '#userCommentAfterClick', function(event){
+    // $('body').on('click', '.indivComment.material-icons', function(event) {
+    //     $('.userCommentAfterClick').show();
+    //     // $('.').toggle();
+
+    // });
     // Comment flags being placed on top of each other
-    $('.sample').on('click', '#indivCommentDiv', function(event) {
+    $('.sample').on('click', '.indivCommentDiv', function(event) {
+        console.log('onSampleClick');
+        $('.userCommentAfterClick').show();
         var position = $(event.target).closest('.indivCommentContainer').position();
         // Returns False. Never true. Need to target parent div
-        console.log($('#indivCommentDiv').children());
         // If this p tag is visible, dont make this call.
         // Want to keep multiple ones open for student review
         // PROBLEM: not targetting my division here.
         // console.log(!$(event.target).closest('#indivCommentDiv').contains('<p id="userCommentAfterClick">'));
         // if (!$(event.target).closest('#indivCommentDiv').has('p')) else just show the relevant items
+
         var ajax = $.ajax('/users/' + username + '/comments/' + position.left + '/' + position.top, {
             type: 'GET',
             contentType: "application/json",
             dataType: 'json',
             success: function(data) {
+                console.log(data);
                 // console.log($(event.target).closest('#indivComment').append('<p>Hey There</p>'));
-                $('<p id="userCommentAfterClick">' + data.comment + '</p>').prependTo($(event.target).closest('#indivCommentDiv'))
-                    .css({
-                        'bottom': 4,
-                    });
+                if ($('.closeCommentIcon').length == 0) {
+                    $('<p class="closeCommentIcon userCommentAfterClick">' + data.comment + '</p>').prependTo($(event.target).closest('.indivCommentDiv'))
+                        .css({
+                            'bottom': 4,
+                        });
+                }
 
-                $('<i class="material-icons" id="closeCommentIcon">highlight_off</i>').appendTo($('.indivCommentContainer'))
+                $('<i class="material-icons closeCommentIcon">highlight_off</i>').appendTo($('.indivCommentContainer'))
                     .css({
                         'bottom': data.cursorPositionTop,
                         'left': data.cursorPositionLeft
                     });
-                $('<i class="material-icons" id="deleteCommentIcon">delete</i>').appendTo($('.indivCommentContainer'))
+                $('<i class="material-icons deleteCommentIcon">delete</i>').appendTo($('.indivCommentContainer'))
                     .css({
                         'bottom': data.cursorPositionTop + 50,
                         'left': data.cursorPositionLeft + 40
@@ -113,21 +125,23 @@ $(function() {
 
                 // }
                 // .css({ 'top': data.cursorPositionTop - 57, 'left': data.cursorPositionLeft - 2 }) // Take comment and date, put in division, make division hidden (close sign, click outside)
+            console.log('length of closeCOmmentIcon', $('.closeCommentIcon').length);
             },
             error: function(err) {
                 console.log(err)
             }
         });
+
     });
 
-    $('.sample').on('click', '#closeCommentIcon', function(event) {
+    $('.sample').on('click', '.closeCommentIcon', function(event) {
+        console.log("hi");
         // Need to close right comment box.
         // Target by proximity
-        $('#closeCommentIcon').siblings('#indivCommentDiv').children().first().hide();
-        $('#closeCommentIcon').hide();
-        $('#deleteCommentIcon').hide();
+        $('.closeCommentIcon').siblings('.indivCommentDiv').children().first().hide();
+        $('.closeCommentIcon').hide();
+        $('.deleteCommentIcon').hide();
         // $(event.target).closest('#indivCommentDiv').hide();
-        console.log($('#closeCommentIcon').siblings('#indivCommentDiv'));
     });
 });
 
@@ -145,18 +159,18 @@ $('#msgbox').dialog({
         Okay: function(e) {
             var userComment = $('#ta').val();
             $(this).dialog('close');
-            $('<div class="indivCommentContainer"><div id="indivCommentDiv"><i class="material-icons id="indivComment">insert_comment</i></div></div>').appendTo('.sample')
+            $('<div class="indivCommentContainer"><div class="indivCommentDiv"><i class="material-icons indivComment">insert_comment</i></div></div>').appendTo('.sample')
                 .css({
                     'position': 'absolute',
                     'top': cursorPosition.top,
                     'left': cursorPosition.left,
                 });
-            $('.userComments i').attr('id', function(i) {
-                id = 'number' + (i + 1);
-                return id
+            // $('.userComments i').attr('id', function(i) {
+            //     id = 'number' + (i + 1);
+            //     return id
 
-            });
-            $('#' + id).css(cursorPosition);
+            // });
+            // $('#' + id).css(cursorPosition);
             var newComment = { 'comment': userComment, 'text_end': end, 'text_start': start, 'cursorPositionTop': cursorPosition.top, 'cursorPositionLeft': cursorPosition.left };
             var ajax = $.ajax('/users/' + username + '/comments', {
                 type: 'PUT',
@@ -198,7 +212,7 @@ var checkForUserData = function(username) {
 
                 if (data.comments.length > 0) {
                     for (var i = 0; i < data.comments.length; i++) {
-                        $('<div class="indivCommentContainer"><div id="indivCommentDiv"><i class="material-icons" id="indivComment">insert_comment</i></div></div>').appendTo('.sample')
+                        $('<div class="indivCommentContainer"><div class="indivCommentDiv"><i class="material-icons indivComment">insert_comment</i></div></div>').appendTo('.sample')
                             .css({
                                 'position': 'absolute',
                                 'top': data.comments[i].cursorPositionTop,
