@@ -34,7 +34,7 @@ var userSchema = mongoose.Schema({
 });
 
 var highlightsSchema = mongoose.Schema({
-    username: [{type: Schema.Types.ObjectId, ref: 'User'}],
+    username: String,
     text_end: Number,
     text_start: Number,
     // time: { type: Date, default: Date.now }
@@ -91,18 +91,46 @@ app.get('/users/:username', function(req, res, errback) {
 });
 // Needs work - see below
 app.put('/users/:username/highlights', function(req, res) {
-    var username = { username: req.params.username };
-    var highlight = {
-        'text_end': req.body.text_end,
-        'text_start': req.body.text_start
-    };
     // Not returning needed object
     // Upsert and new did not work
 
-    User.findOne(username, function(err, user) {
-        if (err) return res.status(500).json(err);
-        user.highlights.push(highlight);
+    // var highlight = {
+    //     'username': username,
+    //     'text_end': req.body.text_end,
+    //     'text_start': req.body.text_start
+    // };
+    var newHighlight = {
+        'username': req.params.username,
+        'text_end': req.body.text_end,
+        'text_start': req.body.text_start
+    }
+    Highlights.create(newHighlight, function(err, highlight) {
+        if (err) return res.status(500).json(highlight);
+        res.status(201).json(highlight);
     });
+
+    User.findOne({ username: req.params.username }, function(err, user) {
+        if (err) {
+            return res.status(500).json(err);
+        }
+        console.log(user.highlights);
+        console.log(newHighlight);
+        user.highlights.push(newHighlight);
+
+    });
+    // Highlights.push({highlight});
+    // User.highlights.push(highlight);
+
+    // User.find(username, function(err, user) {
+    //     if (err) return res.status(500).json(err);
+    //     var highlight = {
+    //         'username': user.username,
+    //         'text_end': req.body.text_end,
+    //         'text_start': req.body.text_start
+    //     };
+    // User.highlights.push(highlight);
+    // Highlights.push({'username': user.username, 'text_end': req.body.text_end, 'text_start': req.body.text_start});
+    // });
 
     // Highlights.create(highlight, function(err, newHighlight){
     //     if (err) return res.status(500).json(err);
@@ -110,7 +138,7 @@ app.put('/users/:username/highlights', function(req, res) {
 
     // });
     // console.log(newHighlight);
-    User.find(username).populate('highlights').exec(function(err, updatedUser) {
+    User.findOne({ username: req.params.username }).populate('highlights').exec(function(err, updatedUser) {
         console.log(updatedUser);
     });
     // User.findOne(username).populate('User.highlights').exec(function(err, user){
