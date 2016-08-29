@@ -7,6 +7,7 @@
 var express = require('express');
 var mongoose = require('mongoose');
 var app = express();
+var Schema = mongoose.Schema;
 var bodyParser = require('body-parser');
 var jsonParser = bodyParser.json();
 var _ = require('underscore');
@@ -27,19 +28,20 @@ mongoose.connection.on('error', function(err) {
 // 
 var userSchema = mongoose.Schema({
     username: { type: String, unique: true },
-    comments: [{ comment: String, text_end: Number, text_start: Number, cursorPositionTop: Number, cursorPositionLeft: Number, time: { type: Date, default: Date.now} }],
-    highlights: [(type: Schema.Types.ObjectId, ref: 'Highlights')]    
-    // highlights: [{ text_end: Number, text_start: Number }, { unique: true, dropDups: true }]
+    comments: [{ comment: String, text_end: Number, text_start: Number, cursorPositionTop: Number, cursorPositionLeft: Number, time: { type: Date, default: Date.now } }],
+    highlights: [{ type: Schema.Types.ObjectId, ref: 'Highlights' }]
+        // highlights: [{ text_end: Number, text_start: Number }, { unique: true, dropDups: true }]
 });
 
 var highlightsSchema = mongoose.Schema({
+    username: [{type: Schema.Types.ObjectId, ref: 'User'}],
     text_end: Number,
     text_start: Number,
-    time: { type: Date, default: Date.now }
-});
+    // time: { type: Date, default: Date.now }
+}, { unique: true });
 
 var User = mongoose.model('User', userSchema);
-var HighLights = mongoose.model('Highlights', highlightsSchema);
+var Highlights = mongoose.model('Highlights', highlightsSchema);
 
 // Get user information
 app.get('/users', function(req, res) {
@@ -96,10 +98,21 @@ app.put('/users/:username/highlights', function(req, res) {
     };
     // Not returning needed object
     // Upsert and new did not work
-    HighLights.create(highlight, function(err, newHighlight){
+
+    User.findOne(username, function(err, user) {
         if (err) return res.status(500).json(err);
-        console.log(newHighLight);
-    })
+        user.highlights.push(highlight);
+    });
+
+    // Highlights.create(highlight, function(err, newHighlight){
+    //     if (err) return res.status(500).json(err);
+    //     console.log('new highlight .create', newHighlight);
+
+    // });
+    // console.log(newHighlight);
+    User.find(username).populate('highlights').exec(function(err, updatedUser) {
+        console.log(updatedUser);
+    });
     // User.findOne(username).populate('User.highlights').exec(function(err, user){
     //     if (err) return res.status(500).json(err);
     //     console.log(user)
