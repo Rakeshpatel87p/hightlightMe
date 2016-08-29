@@ -1,8 +1,5 @@
 // Comments:
-// Closing comments
 // Delete comments permanently
-
-// Multiple appendages of comments on subsequent clicks
 
 // Comments link - open/close all
 
@@ -28,35 +25,17 @@ $(function() {
             // Getting numerical txt position of textHighlightedByUser
             start = thisText.indexOf(textHighlightedByUser);
             end = start + textHighlightedByUser.length;
-            // Add 2 for comment flag position.
             cursorPosition = { top: event.pageY - 36, left: event.pageX - 44 }
             if (textHighlightedByUser != "") {
                 $(".highlightOptions").show().css({ 'top': event.pageY + 10, 'left': event.pageX });
                 if ($("#highlight").click(function() {
-                        // LIKELY SPOT FOR DUPLICATE SPAN APPLICATIONS
-                        // Still putting up duplicate highlights
+                        // PUT IN RETURNED DATA HERE TO DETERMINE IF HIGHLIGHT IS UNIQUE
                         var textToHighlight = getHighlightedTextPosition(textHighlightedByUser, end, start);
                         var spn = '<span class="selectedYellow">' + textToHighlight + '</span>'
                         $('.sample').html($('.sample').html().replace(textToHighlight, spn));
-                        // console.log('logging THIS', $(this));
                         if ($(textHighlightedByUser).hasClass('selectedYellow')) {
                             console.log('already highlighted');
                         }
-                        // This method didn't work
-                        // if ($('div:contains(' + textHighlightedByUser + ')').hasAttribute('span'){
-                        //  console.log('yeppers');
-                        // })
-
-                        // This method didn't work either.
-                        // $('div:contains(' + textHighlightedByUser + ')').html(function(_, html) {
-                        // var attr = $('div:contains(' + textHighlightedByUser + ')').hasClass('selectedYellow');
-
-                        // if ($('div:contains(' + textHighlightedByUser + ')').hasClass('selectedYellow') == false) {
-                        // return html.replace(textHighlightedByUser, '<span class="selectedYellow">' + textHighlightedByUser + '</span>');
-                        // } 
-                        // console.log('statement evals to true');
-                        // });
-                        // var highlightedItem = { 'selectedText': textHighlightedByUser, 'date': date };
                         $(".highlightOptions").hide();
                     }));
                 if ($("#comment").click(function(event) {
@@ -69,34 +48,10 @@ $(function() {
             } else {
                 $('.highlightOptions').hide();
             };
-
-            // Logic that should hide highlightOptions when click registered outside
-            //     if ($(document).click(function() {
-            //             $(".highlightOptions").hide();
-            //         }))
-
-            //         console.log(textHighlightedByUser);
-
         });
-    // Duplicating appendage on multiple clicks
-    // it is dynamic (doesn't exist yet)
-    // $('body').on('click', '#userCommentAfterClick', function(event){
-    // $('body').on('click', '.indivComment.material-icons', function(event) {
-    //     $('.userCommentAfterClick').show();
-    //     // $('.').toggle();
 
-    // });
-    // Comment flags being placed on top of each other
     $('.sample').on('click', '.indivCommentDiv', function(event) {
-        // $('.userCommentAfterClick').show();
         var position = $(event.target).closest('.indivCommentContainer').position();
-        // Returns False. Never true. Need to target parent div
-        // If this p tag is visible, dont make this call.
-        // Want to keep multiple ones open for student review
-        // PROBLEM: not targetting my division here.
-        // console.log(!$(event.target).closest('#indivCommentDiv').contains('<p id="userCommentAfterClick">'));
-        // if (!$(event.target).closest('#indivCommentDiv').has('p')) else just show the relevant items
-
         var ajax = $.ajax('/users/' + username + '/comments/' + position.left + '/' + position.top, {
             type: 'GET',
             contentType: "application/json",
@@ -113,10 +68,10 @@ $(function() {
                         //     'left': data.cursorPositionLeft
                         // });
                     $('<i class="material-icons deleteCommentIcon">delete</i>').appendTo($(event.target).closest('.indivCommentContainer'));
-                        // .css({
-                        //     'bottom': data.cursorPositionTop + 50,
-                        //     'left': data.cursorPositionLeft + 40
-                        // });
+                    // .css({
+                    //     'bottom': data.cursorPositionTop + 50,
+                    //     'left': data.cursorPositionLeft + 40
+                    // });
                 } else {
                     $(event.target).closest('.indivCommentDiv').children().first().show();
                     $(event.target).closest('.indivCommentContainer').children('.closeCommentIcon').show();
@@ -133,8 +88,6 @@ $(function() {
     });
 
     $('.sample').on('click', '.closeCommentIcon', function(event) {
-        // Need to close right comment box.
-        // Target by proximity
         $(event.target).closest('.closeCommentIcon').siblings('.indivCommentDiv').children().first().hide();
         $(event.target).closest('.indivCommentContainer').children('.closeCommentIcon').hide();
         $(event.target).closest('.indivCommentContainer').children('.deleteCommentIcon').hide();
@@ -162,12 +115,6 @@ $('#msgbox').dialog({
                     'top': cursorPosition.top,
                     'left': cursorPosition.left,
                 });
-            // $('.userComments i').attr('id', function(i) {
-            //     id = 'number' + (i + 1);
-            //     return id
-
-            // });
-            // $('#' + id).css(cursorPosition);
             var newComment = { 'comment': userComment, 'text_end': end, 'text_start': start, 'cursorPositionTop': cursorPosition.top, 'cursorPositionLeft': cursorPosition.left };
             var ajax = $.ajax('/users/' + username + '/comments', {
                 type: 'PUT',
@@ -196,16 +143,15 @@ var checkForUserData = function(username) {
             if (data == null) {
                 registerNewUser(username);
             } else {
-                if (data.highlights.length > 0) {
-                    console.log(data);
-                    for (var i = 0; i < data.highlights.length; i++) {
-                        var textToHighlight = thisText.slice(data.highlights[i].text_start, data.highlights[i].text_end);
-                        var spn = '<span class="selectedYellow">' + textToHighlight + '</span>';
-                        // need to play with this more. Maybe insert vs. replace?
-                        $('.sample').html($('.sample').html().replace(textToHighlight, spn));
+                // if (data.highlights.length > 0) {
+                //     for (var i = 0; i < data.highlights.length; i++) {
+                //         var textToHighlight = thisText.slice(data.highlights[i].text_start, data.highlights[i].text_end);
+                //         var spn = '<span class="selectedYellow">' + textToHighlight + '</span>';
+                //         // need to play with this more. Maybe insert vs. replace?
+                //         $('.sample').html($('.sample').html().replace(textToHighlight, spn));
 
-                    }
-                }
+                //     }
+                // }
 
                 if (data.comments.length > 0) {
                     for (var i = 0; i < data.comments.length; i++) {
@@ -228,12 +174,11 @@ var checkForUserData = function(username) {
 };
 
 var getHighlightedTextPosition = function(textHighlightedByUser, end, start) {
-    console.log('here');
     var ajax = $.ajax('/users/' + username + '/highlights', {
         type: 'PUT',
         data: { 'text_end': end, 'text_start': start },
         dataType: 'json',
-        success: function(data){
+        success: function(data) {
             console.log(data);
         }
 
@@ -254,19 +199,10 @@ var registerNewUser = function(username) {
 
 function getSelectionText() {
     var text = "";
-    // console.log('winSelect', window.getSelection());
     if (window.getSelection) {
         text = window.getSelection().toString();
     } else if (document.selection && document.selection.type != "Control") {
         text = document.selection.createRange().text;
     }
     return text;
-};
-// Trying to assign indiv id values so that can properly position comment flags
-function add() {
-    $('.userComments i').attr('id', function(i) {
-        'number' + (i + 1)
-
-    });
-    $('#')
 };

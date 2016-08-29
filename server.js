@@ -1,6 +1,5 @@
 // Put non-dupicative highlights
 // Delete highlights
-// Stop storing duplicate values
 
 // Create unique records for embedded docs
 // VERSUS one to many, creating relationships
@@ -21,14 +20,26 @@ mongoose.connect('mongodb://localhost/highlightMeData');
 mongoose.connection.on('error', function(err) {
     console.error('Could not connect. Error', err)
 });
-
+// unique: true == doesn't work
+// dropDups true == doesn't work
+// $addToSet in PUT doesnt work
+// Option: create seperate schema for highlights, use populate method to ensure unqiueness
+// 
 var userSchema = mongoose.Schema({
     username: { type: String, unique: true },
-    comments: [{ comment: String, text_end: Number, text_start: Number, cursorPositionTop: Number, cursorPositionLeft: Number, time: { type: Date, default: Date.now } }],
-    highlights: [{ text_end: Number, text_start: Number, time: { type: Date, default: Date.now } }, {unique: true}]
-}, { timestamps: true });
+    comments: [{ comment: String, text_end: Number, text_start: Number, cursorPositionTop: Number, cursorPositionLeft: Number, time: { type: Date, default: Date.now} }],
+    highlights: [(type: Schema.Types.ObjectId, ref: 'Highlights')]    
+    // highlights: [{ text_end: Number, text_start: Number }, { unique: true, dropDups: true }]
+});
 
-var User = mongoose.model('User', userSchema)
+var highlightsSchema = mongoose.Schema({
+    text_end: Number,
+    text_start: Number,
+    time: { type: Date, default: Date.now }
+});
+
+var User = mongoose.model('User', userSchema);
+var HighLights = mongoose.model('Highlights', highlightsSchema);
 
 // Get user information
 app.get('/users', function(req, res) {
@@ -84,13 +95,25 @@ app.put('/users/:username/highlights', function(req, res) {
         'text_start': req.body.text_start
     };
     // Not returning needed object
-    User.findOneAndUpdate(username, { $push: { highlights: highlight } }, { new: true, upsert: true }, function(error, data) {
-        if (error) {
-            res.status(500).json('Highlight Already Exists', error)
-        };
-        console.log('highlight created', data);
-        res.status(201).json(data);
-    });
+    // Upsert and new did not work
+    HighLights.create(highlight, function(err, newHighlight){
+        if (err) return res.status(500).json(err);
+        console.log(newHighLight);
+    })
+    // User.findOne(username).populate('User.highlights').exec(function(err, user){
+    //     if (err) return res.status(500).json(err);
+    //     console.log(user)
+    // });
+    // User.findOneAndUpdate(username, {
+    //         $addToSet: { highlights: highlight }
+    //     }, { new: true },
+    //     function(error, data) {
+    //         if (error) {
+    //             res.status(500).json('Highlight Already Exists', error)
+    //         };
+    //         console.log('highlight created', data);
+    //         res.status(201).json(data);
+    //     });
 
     // User.findOne(username, function(err, user) {
     //     // Not properly filtering out possible duplicates:
