@@ -25,6 +25,7 @@ $(function() {
     $(".sample")
         .mouseup(function() {
             textHighlightedByUser = getSelectionText();
+            // Getting numerical txt position of textHighlightedByUser
             start = thisText.indexOf(textHighlightedByUser);
             end = start + textHighlightedByUser.length;
             // Add 2 for comment flag position.
@@ -227,10 +228,14 @@ var checkForUserData = function(username) {
 };
 
 var getHighlightedTextPosition = function(textHighlightedByUser, end, start) {
+    console.log('here');
     var ajax = $.ajax('/users/' + username + '/highlights', {
         type: 'PUT',
         data: { 'text_end': end, 'text_start': start },
-        dataType: 'json'
+        dataType: 'json',
+        success: function(data){
+            console.log(data);
+        }
 
     });
     ajax.done();

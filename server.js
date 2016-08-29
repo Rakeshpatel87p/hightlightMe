@@ -25,7 +25,7 @@ mongoose.connection.on('error', function(err) {
 var userSchema = mongoose.Schema({
     username: { type: String, unique: true },
     comments: [{ comment: String, text_end: Number, text_start: Number, cursorPositionTop: Number, cursorPositionLeft: Number, time: { type: Date, default: Date.now } }],
-    highlights: [{ text_end: Number, text_start: Number, time: { type: Date, default: Date.now } }]
+    highlights: [{ text_end: Number, text_start: Number, time: { type: Date, default: Date.now } }, {unique: true}]
 }, { timestamps: true });
 
 var User = mongoose.model('User', userSchema)
@@ -84,45 +84,57 @@ app.put('/users/:username/highlights', function(req, res) {
         'text_start': req.body.text_start
     };
     // Not returning needed object
-    User.findOne(username, function(err, user) {
-        // Not properly filtering out possible duplicates:
-        // 1) require statement looks good - line 10
-        // 2) Syntax is right.
-        // 3) Tried findWhere - no success
-        // var results = _.where(user.highlights, highlight );
-        var results = _.where(user.highlights, {
-            'text_end': req.body.text_end,
-            'text_start': req.body.text_start
-        });
-        for (var i = 0; i < user.highlights.length; i++) {
-            if (user.highlights[i].text_end == highlight.text_end && user.highlights[i].text_start == highlight.text_start) {
-                console.log(user.highlights[i]);
-            } else {
-                console.log(user.highlights[i], 'else');
-                User.findOneAndUpdate(username, { $push: { highlights: highlight } }, { new: true }, function(error, data) {
-                    if (error) {
-                        res.status(500).json('Highlight Already Exists', error)
-                    };
-                    console.log('highlight created');
-                    // res.status(201).json(data);
-                });
-            }
-
-        }
-        // console.log('highlight', highlight, 'results equal 0', results.length == 0);
-
-        // if (results.length == 0) {
-        //     User.findOneAndUpdate(username, { $push: { highlights: highlight } }, { new: true }, function(error, data) {
-        //         if (error) {
-        //             res.status(500).json('Highlight Already Exists', error)
-        //         };
-        //         console.log('highlight created');
-        //         // res.status(201).json(data);
-        //     });
-        // }
-
-        res.status(200).json(user);
+    User.findOneAndUpdate(username, { $push: { highlights: highlight } }, { new: true, upsert: true }, function(error, data) {
+        if (error) {
+            res.status(500).json('Highlight Already Exists', error)
+        };
+        console.log('highlight created', data);
+        res.status(201).json(data);
     });
+
+    // User.findOne(username, function(err, user) {
+    //     // Not properly filtering out possible duplicates:
+    //     // 1) require statement looks good - line 10
+    //     // 2) Syntax is right.
+    //     // 3) Tried findWhere - no success
+    //     // var results = _.where(user.highlights, highlight );
+    //     // var results = _.where(user.highlights, {
+    //     //     'text_end': req.body.text_end,
+    //     //     'text_start': req.body.text_start
+    //     // });
+    //     if (err) {
+    //         res.status(500).json(err)
+    //     }
+    //     user.update()
+    //     for (var i = 0; i < user.highlights.length; i++) {
+    //         if (user.highlights[i].text_end == highlight.text_end && user.highlights[i].text_start == highlight.text_start) {
+    //             console.log(user.highlights[i]);
+    //         } else {
+    //             console.log(user.highlights[i], 'else');
+    //             User.findOneAndUpdate(username, { $push: { highlights: highlight } }, { new: true }, function(error, data) {
+    //                 if (error) {
+    //                     res.status(500).json('Highlight Already Exists', error)
+    //                 };
+    //                 console.log('highlight created');
+    //                 // res.status(201).json(data);
+    //             });
+    //         }
+
+    //     }
+    //     // console.log('highlight', highlight, 'results equal 0', results.length == 0);
+
+    //     // if (results.length == 0) {
+    //     //     User.findOneAndUpdate(username, { $push: { highlights: highlight } }, { new: true }, function(error, data) {
+    //     //         if (error) {
+    //     //             res.status(500).json('Highlight Already Exists', error)
+    //     //         };
+    //     //         console.log('highlight created');
+    //     //         // res.status(201).json(data);
+    //     //     });
+    //     // }
+
+    //     res.status(200).json(user);
+    // });
 });
 
 // Delete highlights
