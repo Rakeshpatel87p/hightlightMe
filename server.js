@@ -243,7 +243,7 @@ app.put('/users/:username/comments', function(req, res) {
 // Delete comments
 app.delete('/users/:username/comments', function(req, res) {
     Comment.findByIdAndRemove({ _id: req.body.commentIdToDelete }, function(err, callback) {
-        if (err) return res.status(500).json(err);
+        if (err) return res.status(500).json('wtf');
         console.log(callback);
     });
     // User.update({ _id: req.body.commentIdToDelete }, { $pull: { 'users.comments': { _id: req.body.commentIdToDelete } } })

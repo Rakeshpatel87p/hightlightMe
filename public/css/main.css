@@ -71,7 +71,8 @@ body {
 
 .closeCommentIcon,
 .deleteCommentIcon {
-    background-color: yellow;
+    background-color: grey;
+    border: 1px solid black;
 }
 
 .indivCommentContainer {
