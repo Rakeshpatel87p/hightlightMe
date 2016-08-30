@@ -26,7 +26,6 @@ mongoose.connection.on('error', function(err) {
 // dropDups true == doesn't work
 // $addToSet in PUT doesnt work
 // Option: create seperate schema for highlights, use populate method to ensure unqiueness
-// 
 var userSchema = mongoose.Schema({
     username: { type: String, unique: true },
     comments: [{ comment: String, text_end: Number, text_start: Number, cursorPositionTop: Number, cursorPositionLeft: Number, time: { type: Date, default: Date.now } }],
@@ -42,48 +41,73 @@ var highlightSchema = mongoose.Schema({
         // time: { type: Date, default: Date.now }
 }, { unique: true });
 
+// One method to prevent duplicates - allows duplicates
 // highlightSchema.index({ users: 1, text_end: 1, text_start: 1 }, { unique: true })
 
 var User = mongoose.model('User', userSchema);
 var Highlight = mongoose.model('Highlight', highlightSchema);
+// Magnifying error events for highlight
+Highlight.schema.options.emitIndexErrors;
+Highlight.on('error', function(error) {
+    console.log(error)
+});
 
 // Example of implementing populate
 app.get('/users/sample', function(req, res) {
-        var rakesh2 = new User({ username: "rakesh4" });
-        rakesh2.save();
+    // var rakesh2 = new User({ username: "rakesh4" });
+    // rakesh2.save();
+    User.findOne({ username: 'rakesh4' }, function(err, user) {
+        if (err) {
+            res.status(500).json(err);
+        }
+        var rakesh2ID = user._id;
 
         var newHighlight = new Highlight({
-            text_end: 52,
-            text_start: 12,
-            users: [{ userId: rakesh2._id }]
+            text_end: 42,
+            text_start: 10,
+            users: [{ userId: rakesh2ID }]
         });
 
-        newHighlight.save(function(err) {
-            if (err) {
-                console.log(err)
-            } else {
-                Highlight.find({}) //~want to enter in find query here
-                    .populate('users')
-                    .exec(function(err, highlights) {
-                        console.log(highlights);
-                    })
-            }
-        });
-        // This method of preventing duplicates did not work - would not create new highlight
         Highlight.on('index', function(error) {
-            console.log('here');
+            if (!error) {
+                newHighlight.save(function(err) {
+                    if (err) {
+                        console.log(err)
+                    }
+                    console.log('hl on index', newHighlight);
+                    Highlight.find({}) //~want to enter in find query here
+                        .populate('users')
+                        .exec(function(err, highlights) {
+                            console.log('after hl.find', highlights);
+                        });
+                });
+            };
+            console.log(error);
+        });
 
-        })
-        // Highlight.find({}) //~want to enter in find query here
-        //     .populate('users')
-        //     .exec(function(err, highlights) {
-        //         console.log(highlights);
-        //     })
+    });
 
-        res.json({});
+    res.json({});
 
-    })
-    // Get user information
+});
+
+
+// This method of preventing duplicates did not work - would not create new highlight
+
+
+// newHighlight.save(function(err) {
+//     if (err) {
+//         console.log(err)
+//     }
+
+// Highlight.find({}) //~want to enter in find query here
+//     .populate('users')
+//     .exec(function(err, highlights) {
+//         console.log(highlights);
+//     })
+
+// });
+// Get user information
 app.get('/users', function(req, res) {
     User.find(function(err, users) {
         if (err) {
