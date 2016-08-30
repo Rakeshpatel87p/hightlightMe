@@ -48,8 +48,9 @@ $(function() {
         });
 
     $('.sample').on('click', '.indivCommentDiv', function(event) {
-        var position = $(event.target).closest('.indivCommentContainer').position();
-        var ajax = $.ajax('/users/' + username + '/comments/' + position.left + '/' + position.top, {
+        var commentId = $(event.target).closest('.indivCommentContainer').children('.indivCommentDiv').children('.indivComment').attr('id');
+        // var position = $(event.target).closest('.indivCommentContainer').position();
+        var ajax = $.ajax('/users/' + username + '/comments/' + commentId, {
             type: 'GET',
             contentType: "application/json",
             dataType: 'json',
@@ -92,17 +93,18 @@ $(function() {
     });
     // Comment is deleted
     $('.sample').on('click', '.deleteCommentIcon', function(event) {
-        $(event.target).closest('.deleteCommentIcon').siblings('.indivCommentDiv').children().first().hide();
-        $(event.target).closest('.indivCommentContainer').children('.closeCommentIcon').hide();
-        $(event.target).closest('.indivCommentContainer').children('.deleteCommentIcon').hide().children().first();
         var commentToDelete = $(event.target).closest('.indivCommentContainer').children('.indivCommentDiv').children('.indivComment').attr('id');
-        console.log('comment ID to delete', commentToDelete);
+        // $(event.target).closest('.deleteCommentIcon').siblings('.indivCommentDiv').children().first().hide();
+        // $(event.target).closest('.indivCommentContainer').children('.closeCommentIcon').hide();
+        // $(event.target).closest('.indivCommentContainer').children('.deleteCommentIcon').hide().children().first();
         var ajax = $.ajax('/users/:username/comments', {
             type: 'DELETE',
-            data: {commentIdToDelete: commentToDelete},
+            data: { commentIdToDelete: commentToDelete },
             dataType: 'json'
         });
-        ajax.done()
+        ajax.done();
+        $(event.target).closest('.indivCommentContainer').remove();
+
     });
 
 });
@@ -127,6 +129,7 @@ $('#msgbox').dialog({
                 data: newComment,
                 dataType: 'json',
                 success: function(data) {
+                    console.log(data);
                     var commentObjectID = data._id;
 
                     $('<div class="indivCommentContainer"><div class="indivCommentDiv"><i class="material-icons indivComment" id=' + commentObjectID + '>insert_comment</i></div></div>').appendTo('.sample')
@@ -171,13 +174,13 @@ var checkForUserData = function(username) {
                     }
                 }
 
-                if (userData.userData.comments.length > 0) {
-                    for (var i = 0; i < userData.userData.comments.length; i++) {
-                        $('<div class="indivCommentContainer"><div class="indivCommentDiv"><i class="material-icons indivComment" id=' + userData.userData.comments[i]._id + '>insert_comment</i></div></div>').appendTo('.sample')
+                if (userData.userComments.length > 0) {
+                    for (var i = 0; i < userData.userComments.length; i++) {
+                        $('<div class="indivCommentContainer"><div class="indivCommentDiv"><i class="material-icons indivComment" id=' + userData.userComments[i]._id + '>insert_comment</i></div></div>').appendTo('.sample')
                             .css({
                                 'position': 'absolute',
-                                'top': userData.userData.comments[i].cursorPositionTop,
-                                'left': userData.userData.comments[i].cursorPositionLeft,
+                                'top': userData.userComments[i].cursorPositionTop,
+                                'left': userData.userComments[i].cursorPositionLeft,
                             });
                     }
                 }
