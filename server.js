@@ -34,11 +34,11 @@ var userSchema = mongoose.Schema({
 });
 
 var highlightsSchema = mongoose.Schema({
-    username: String,
+    // username: String,
     text_end: Number,
     text_start: Number,
     // time: { type: Date, default: Date.now }
-}, { unique: true });
+});
 
 var User = mongoose.model('User', userSchema);
 var Highlights = mongoose.model('Highlights', highlightsSchema);
@@ -247,6 +247,7 @@ app.put('/users/:username/comments', function(req, res) {
             res.status(500).json('Comment not uploaded');
             return;
         }
+        console.log(data);
         res.status(201).json(data);
     });
 });
@@ -254,16 +255,17 @@ app.put('/users/:username/comments', function(req, res) {
 // Delete comments
 app.delete('/users/:username/comments', function(req, res) {
     var username = { username: req.params.username };
-    var comment = {
-        comment: req.body.comment,
-        text_end: req.body.text_end,
-        text_start: req.body.text_start
-    };
+    // var comment = {
+    //     comment: req.body.comment,
+    //     text_end: req.body.text_end,
+    //     text_start: req.body.text_start
+    // };
 
-    User.findOneAndUpdate(username, { $pull: { comments: comment } }, { new: true }, function(err, data) {
+    User.findOneAndUpdate(username, { $pull: { _id: req.body.commentToDelete } }, { new: true }, function(err, data) {
             if (err) {
                 res.status(500).json('Not properly pulled')
             }
+            console.log(data);
             res.status(201).json(data);
         })
         // User.findOneAndRemove(username, {sort: {'comments': comment} }, { new: true }, function(err, callback) {

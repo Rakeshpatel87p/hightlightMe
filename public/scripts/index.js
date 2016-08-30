@@ -93,6 +93,20 @@ $(function() {
         $(event.target).closest('.indivCommentContainer').children('.deleteCommentIcon').hide();
         // $(event.target).closest('#indivCommentDiv').hide();
     });
+
+    $('.sample').on('click', '.deleteCommentIcon', function(event) {
+        $(event.target).closest('.deleteCommentIcon').siblings('.indivCommentDiv').children().first().hide();
+        $(event.target).closest('.indivCommentContainer').children('.closeCommentIcon').hide();
+        $(event.target).closest('.indivCommentContainer').children('.deleteCommentIcon').hide().children().first();
+        var commentToDelete = $(event.target).closest('.indivCommentContainer').children('.indivCommentDiv').children('.indivComment').attr('id');
+        var ajax = $.ajax('/users/:username/comments', {
+            type: 'DELETE',
+            data: commentToDelete,
+            dataType: 'json'
+        });
+        ajax.done()
+    });
+
 });
 
 $('#msgbox').dialog({
@@ -109,17 +123,21 @@ $('#msgbox').dialog({
         Okay: function(e) {
             var userComment = $('#ta').val();
             $(this).dialog('close');
-            $('<div class="indivCommentContainer"><div class="indivCommentDiv"><i class="material-icons indivComment">insert_comment</i></div></div>').appendTo('.sample')
-                .css({
-                    'position': 'absolute',
-                    'top': cursorPosition.top,
-                    'left': cursorPosition.left,
-                });
             var newComment = { 'comment': userComment, 'text_end': end, 'text_start': start, 'cursorPositionTop': cursorPosition.top, 'cursorPositionLeft': cursorPosition.left };
             var ajax = $.ajax('/users/' + username + '/comments', {
                 type: 'PUT',
                 data: newComment,
                 dataType: 'json',
+                success: function(data) {
+                    var commentObjectID = data._id;
+
+                    $('<div class="indivCommentContainer"><div class="indivCommentDiv"><i class="material-icons indivComment" id=' + commentObjectID + '>insert_comment</i></div></div>').appendTo('.sample')
+                        .css({
+                            'position': 'absolute',
+                            'top': cursorPosition.top,
+                            'left': cursorPosition.left,
+                        });
+                }
             });
             ajax.done();
             $(".highlightOptions").hide();
@@ -155,7 +173,7 @@ var checkForUserData = function(username) {
 
                 if (data.comments.length > 0) {
                     for (var i = 0; i < data.comments.length; i++) {
-                        $('<div class="indivCommentContainer"><div class="indivCommentDiv"><i class="material-icons indivComment">insert_comment</i></div></div>').appendTo('.sample')
+                        $('<div class="indivCommentContainer"><div class="indivCommentDiv"><i class="material-icons indivComment" id=' + data.comments[i]._id + '>insert_comment</i></div></div>').appendTo('.sample')
                             .css({
                                 'position': 'absolute',
                                 'top': data.comments[i].cursorPositionTop,
