@@ -54,9 +54,17 @@ app.get('/users/sample', function(req, res){
         text_end: 42,
         text_start: 12,
         users: [{userId: rakesh2._id}]
-    })
+    });
 
-    newHighlight.save();
+    newHighlight.save(function(err){
+        if (!err){
+            Highlight.find({}) //~want to enter in find query here
+                .populate('users')
+                .exec(function(err, posts){
+                    console.log(JSON.stringify())
+                })
+        }   
+    });
 
     res.json({});
 
