@@ -35,14 +35,24 @@ var userSchema = mongoose.Schema({
 
 var highlightSchema = mongoose.Schema({
     // username: String,
-    text_end: Number,
-    text_start: Number,
-    users: [{ userId: { type: Schema.Types.ObjectId, ref: 'User' } }]
-        // time: { type: Date, default: Date.now }
-}, { unique: true });
+    text_end: {
+        type: Number,
+        index: true
+    },
+    text_start: {
+        type: Number,
+        index: true
+    },
+    users: {
+        type: Schema.Types.ObjectId,
+        ref: 'User',
+        index: true
+    }
+    // time: { type: Date, default: Date.now }
+});
 
 // One method to prevent duplicates - allows duplicates
-// highlightSchema.index({ users: 1, text_end: 1, text_start: 1 }, { unique: true })
+highlightSchema.index({ text_end: 1, text_start: 1, users: 1 }, { unique: true })
 
 var User = mongoose.model('User', userSchema);
 var Highlight = mongoose.model('Highlight', highlightSchema);
@@ -63,27 +73,40 @@ app.get('/users/sample', function(req, res) {
         var rakesh2ID = user._id;
 
         var newHighlight = new Highlight({
-            text_end: 42,
-            text_start: 10,
-            users: [{ userId: rakesh2ID }]
+            text_end: 44,
+            text_start: 2,
+            users: rakesh2ID
         });
 
-        Highlight.on('index', function(error) {
-            if (!error) {
-                newHighlight.save(function(err) {
-                    if (err) {
-                        console.log(err)
-                    }
-                    console.log('hl on index', newHighlight);
-                    Highlight.find({}) //~want to enter in find query here
-                        .populate('users')
-                        .exec(function(err, highlights) {
-                            console.log('after hl.find', highlights);
-                        });
+        newHighlight.save(function(err) {
+            if (err) {
+                console.log(err)
+            }
+            console.log('hl on index', newHighlight);
+            Highlight.find({}) //~want to enter in find query here
+                .populate('users')
+                .exec(function(err, highlights) {
+                    console.log('after hl.find', highlights);
                 });
-            };
-            console.log(error);
         });
+
+        // Highlight.on('index', function(error) {
+        //     if (!error) {
+        //         newHighlight.save(function(err) {
+        //             if (err) {
+        //                 console.log(err)
+        //             }
+        //             console.log('hl on index', newHighlight);
+        //             Highlight.find({}) //~want to enter in find query here
+        //                 .populate('users')
+        //                 .exec(function(err, highlights) {
+        //                     console.log('after hl.find', highlights);
+        //                 });
+        //         });
+        //     };
+        //     console.log('hey');
+        //     console.log(error);
+        // });
 
     });
 
@@ -155,63 +178,27 @@ app.get('/users/:username', function(req, res, errback) {
 });
 // Needs work - see below
 app.put('/users/:username/highlights', function(req, res) {
-
-    var newHighlight = new Highlight({
-        'username': req.params.username,
-        'text_end': req.body.text_end,
-        'text_start': req.body.text_start
-    });
-
-    newHighlight.save(function(err) {
-        if (!err) {
-            Highlight.find({})
-                .populate('users')
-                .exec(function(err, posts) {
-
-                })
+    User.findOne({ username: req.params.username }, function(err, user) {
+        if (err) {
+            console.log(err)
         }
-    })
-
-
-    // User.highlights.push(highlight);
-    // Highlights.push({'username': user.username, 'text_end': req.body.text_end, 'text_start': req.body.text_start});
-    // });
-
-    // Highlights.create(highlight, function(err, newHighlight){
-    //     if (err) return res.status(500).json(err);
-    //     console.log('new highlight .create', newHighlight);
-
-    // });
-
-    // User.findOne(username).populate('User.highlights').exec(function(err, user){
-    //     if (err) return res.status(500).json(err);
-    //     console.log(user)
-    // });
-    // User.findOneAndUpdate(username, {
-    //         $addToSet: { highlights: highlight }
-    //     }, { new: true },
-    //     function(error, data) {
-    //         if (error) {
-    //             res.status(500).json('Highlight Already Exists', error)
-    //         };
-    //         console.log('highlight created', data);
-    //         res.status(201).json(data);
-    //     });
-
-    // User.findOne(username, function(err, user) {
-    //     // Not properly filtering out possible duplicates:
-    //     // 1) require statement looks good - line 10
-    //     // 2) Syntax is right.
-    //     // 3) Tried findWhere - no success
-    //     // var results = _.where(user.highlights, highlight );
-    //     // var results = _.where(user.highlights, {
-    //     //     'text_end': req.body.text_end,
-    //     //     'text_start': req.body.text_start
-    //     // });
-    //     if (err) {
-    //         res.status(500).json(err)
-    //     }
-    //     user.update()
+        console.log(user);
+        var newHighlight = new Highlight({
+            'text_end': req.body.text_end,
+            'text_start': req.body.text_start,
+            'users': user._id,
+        });
+        newHighlight.save(function(err) {
+            if (!err) {
+                Highlight.find({})
+                    .populate('users')
+                    .exec(function(err, newHighlight) {
+                        console.log('newHighlight', newHighlight)
+                    })
+            }
+            console.log(err)
+        });
+    });
 
     res.status(200).json({});
 });
