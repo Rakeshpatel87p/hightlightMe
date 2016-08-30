@@ -156,8 +156,7 @@ var checkForUserData = function(username) {
         type: 'GET',
         dataType: 'json',
         success: function(userData) {
-            console.log(userData);
-            if (userData.userData.length == 0) {
+            if (userData == null) {
                 registerNewUser(username);
                 console.log('Welcome', username)
             } else {
@@ -184,6 +183,8 @@ var checkForUserData = function(username) {
             }
         },
         error: function(err) {
+            registerNewUser(username);
+            console.log('Welcome', username)
             console.log(err);
         }
 

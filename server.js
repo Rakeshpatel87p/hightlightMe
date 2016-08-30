@@ -25,7 +25,7 @@ mongoose.connection.on('error', function(err) {
 var userSchema = mongoose.Schema({
     username: { type: String, unique: true },
     comments: [{ comment: String, text_end: Number, text_start: Number, cursorPositionTop: Number, cursorPositionLeft: Number, time: { type: Date, default: Date.now } }],
-
+    // highlights: {type: Schema.Types.ObjectId, ref: 'Highlight'}
     // highlights: [{ text_end: Number, text_start: Number }, { unique: true, dropDups: true }]
 });
 
@@ -98,26 +98,24 @@ app.delete('/users', function(req, res) {
 // Get highlights and comments
 app.get('/users/:username', function(req, res, errback) {
     var username = req.params.username;
-    User.find({ username: username }, function(err, user) {
+    User.findOne({ username: username }, function(err, user) {
         if (err) {
             errback(err);
             return;
         }
-        
-        Highlight.find({'users': user._id})
-            .populate('users')
-            .exec(function(err, userHighlights){
-                if (err) return res.status(500).json(err)
-                return ({user, userHighlights})
-            });
 
-        // Highlight.find({ 'users': user._id }, function(err, userHighlights) {
-        //     if (err) return res.status(500).json({});
-        //     res.status(200).json({'userHighlights': userHighlights, 'userData': user})
-        // });
+        if (user == null) {
+            return res.status(200).json(null)
+        }
+
+        Highlight.find({ 'users': user._id }, function(err, userHighlights) {
+            if (err) return res.status(500).json({});
+            res.status(200).json({ 'userHighlights': userHighlights, 'userData': user })
+        });
     });
 });
-// Needs work - see below
+
+// Put new highlights
 app.put('/users/:username/highlights', function(req, res) {
     User.findOne({ username: req.params.username }, function(err, user) {
         if (err) {
