@@ -15,7 +15,8 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(jsonParser);
 
 app.use(express.static('public'));
-
+// Fix for deprecation warning # 4291
+mongoose.Promise = global.Promise;
 mongoose.connect('mongodb://localhost/highlightMeData');
 
 mongoose.connection.on('error', function(err) {
@@ -39,32 +40,45 @@ var highlightSchema = mongoose.Schema({
     text_start: Number,
     users: [{ userId: { type: Schema.Types.ObjectId, ref: 'User' } }]
         // time: { type: Date, default: Date.now }
-});
+}, { unique: true });
 
-highlightSchema.index({ users: 1, text_end: 1, text_start: 1 }, { unique: true })
+// highlightSchema.index({ users: 1, text_end: 1, text_start: 1 }, { unique: true })
 
 var User = mongoose.model('User', userSchema);
 var Highlight = mongoose.model('Highlight', highlightSchema);
 
+// Example of implementing populate
 app.get('/users/sample', function(req, res) {
-        var rakesh2 = new User({ username: "rakesh3" });
+        var rakesh2 = new User({ username: "rakesh4" });
         rakesh2.save();
 
         var newHighlight = new Highlight({
-            text_end: 42,
+            text_end: 52,
             text_start: 12,
             users: [{ userId: rakesh2._id }]
         });
 
         newHighlight.save(function(err) {
-            if (!err) {
+            if (err) {
+                console.log(err)
+            } else {
                 Highlight.find({}) //~want to enter in find query here
                     .populate('users')
                     .exec(function(err, highlights) {
-                        console.log(JSON.stringify(highlights, null));
+                        console.log(highlights);
                     })
             }
         });
+        // This method of preventing duplicates did not work - would not create new highlight
+        Highlight.on('index', function(error) {
+            console.log('here');
+
+        })
+        // Highlight.find({}) //~want to enter in find query here
+        //     .populate('users')
+        //     .exec(function(err, highlights) {
+        //         console.log(highlights);
+        //     })
 
         res.json({});
 
@@ -124,12 +138,12 @@ app.put('/users/:username/highlights', function(req, res) {
         'text_start': req.body.text_start
     });
 
-    newHighlight.save(function(err){
-        if (!err){
+    newHighlight.save(function(err) {
+        if (!err) {
             Highlight.find({})
                 .populate('users')
-                .exec(function(err, posts){
-                    
+                .exec(function(err, posts) {
+
                 })
         }
     })
