@@ -30,46 +30,46 @@ var userSchema = mongoose.Schema({
     username: { type: String, unique: true },
     comments: [{ comment: String, text_end: Number, text_start: Number, cursorPositionTop: Number, cursorPositionLeft: Number, time: { type: Date, default: Date.now } }],
 
-        // highlights: [{ text_end: Number, text_start: Number }, { unique: true, dropDups: true }]
+    // highlights: [{ text_end: Number, text_start: Number }, { unique: true, dropDups: true }]
 });
 
 var highlightSchema = mongoose.Schema({
     // username: String,
     text_end: Number,
     text_start: Number,
-    users: [{userId: { type: Schema.Types.ObjectId, ref: 'User' }}]
-    // time: { type: Date, default: Date.now }
+    users: [{ userId: { type: Schema.Types.ObjectId, ref: 'User' } }]
+        // time: { type: Date, default: Date.now }
 });
 
-highlightSchema.index({users: 1, text_end: 1, text_start: 1}, {unique: true})
+highlightSchema.index({ users: 1, text_end: 1, text_start: 1 }, { unique: true })
 
 var User = mongoose.model('User', userSchema);
 var Highlight = mongoose.model('Highlight', highlightSchema);
 
-app.get('/users/sample', function(req, res){
-    var rakesh2 = new User({username: "rakesh2"});
-    rakesh2.save();
+app.get('/users/sample', function(req, res) {
+        var rakesh2 = new User({ username: "rakesh3" });
+        rakesh2.save();
 
-    var newHighlight = new Highlight ({
-        text_end: 42,
-        text_start: 12,
-        users: [{userId: rakesh2._id}]
-    });
+        var newHighlight = new Highlight({
+            text_end: 42,
+            text_start: 12,
+            users: [{ userId: rakesh2._id }]
+        });
 
-    newHighlight.save(function(err){
-        if (!err){
-            Highlight.find({}) //~want to enter in find query here
-                .populate('users')
-                .exec(function(err, posts){
-                    console.log(JSON.stringify())
-                })
-        }   
-    });
+        newHighlight.save(function(err) {
+            if (!err) {
+                Highlight.find({}) //~want to enter in find query here
+                    .populate('users')
+                    .exec(function(err, highlights) {
+                        console.log(JSON.stringify(highlights, null));
+                    })
+            }
+        });
 
-    res.json({});
+        res.json({});
 
-})
-// Get user information
+    })
+    // Get user information
 app.get('/users', function(req, res) {
     User.find(function(err, users) {
         if (err) {
@@ -117,48 +117,24 @@ app.get('/users/:username', function(req, res, errback) {
 });
 // Needs work - see below
 app.put('/users/:username/highlights', function(req, res) {
-    // Not returning needed object
-    // Upsert and new did not work
 
-    // var highlight = {
-    //     'username': username,
-    //     'text_end': req.body.text_end,
-    //     'text_start': req.body.text_start
-    // };
-    var newHighlight = {
+    var newHighlight = new Highlight({
         'username': req.params.username,
         'text_end': req.body.text_end,
         'text_start': req.body.text_start
-    }
-    Highlight.create(newHighlight, function(err, highlight) {
-        if (err) return res.status(500).json({ message: "there is an error"});
-        console.log(highlight, 'hl');
-        console.log('--------------------')
-        // json() --> json({ })
-        // res.status(201).json('new highlight created', highlight);
     });
 
-    User.findOne({ username: req.params.username }, function(err, user) {
-        if (err) {
-            return res.status(500).json(err);
+    newHighlight.save(function(err){
+        if (!err){
+            Highlight.find({})
+                .populate('users')
+                .exec(function(err, posts){
+                    
+                })
         }
+    })
 
-        console.log('highlight', user.highlighs);
-        console.log('--------------------')
-        // console.log('newhl', newHighlight);
-        // user.highlights.push(newHighlight);
 
-    });
-    // Highlights.push({highlight});
-    // User.highlights.push(highlight);
-
-    // User.find(username, function(err, user) {
-    //     if (err) return res.status(500).json(err);
-    //     var highlight = {
-    //         'username': user.username,
-    //         'text_end': req.body.text_end,
-    //         'text_start': req.body.text_start
-    //     };
     // User.highlights.push(highlight);
     // Highlights.push({'username': user.username, 'text_end': req.body.text_end, 'text_start': req.body.text_start});
     // });
@@ -168,10 +144,7 @@ app.put('/users/:username/highlights', function(req, res) {
     //     console.log('new highlight .create', newHighlight);
 
     // });
-    // console.log(newHighlight);
-    // User.findOne({ username: req.params.username }).populate('highlight').exec(function(err, updatedUser) {
-    //     console.log(updatedUser);
-    // });
+
     // User.findOne(username).populate('User.highlights').exec(function(err, user){
     //     if (err) return res.status(500).json(err);
     //     console.log(user)
@@ -201,35 +174,7 @@ app.put('/users/:username/highlights', function(req, res) {
     //         res.status(500).json(err)
     //     }
     //     user.update()
-    //     for (var i = 0; i < user.highlights.length; i++) {
-    //         if (user.highlights[i].text_end == highlight.text_end && user.highlights[i].text_start == highlight.text_start) {
-    //             console.log(user.highlights[i]);
-    //         } else {
-    //             console.log(user.highlights[i], 'else');
-    //             User.findOneAndUpdate(username, { $push: { highlights: highlight } }, { new: true }, function(error, data) {
-    //                 if (error) {
-    //                     res.status(500).json('Highlight Already Exists', error)
-    //                 };
-    //                 console.log('highlight created');
-    //                 // res.status(201).json(data);
-    //             });
-    //         }
 
-    //     }
-    //     // console.log('highlight', highlight, 'results equal 0', results.length == 0);
-
-    //     // if (results.length == 0) {
-    //     //     User.findOneAndUpdate(username, { $push: { highlights: highlight } }, { new: true }, function(error, data) {
-    //     //         if (error) {
-    //     //             res.status(500).json('Highlight Already Exists', error)
-    //     //         };
-    //     //         console.log('highlight created');
-    //     //         // res.status(201).json(data);
-    //     //     });
-    //     // }
-
-    //     res.status(200).json(user);
-    // });
     res.status(200).json({});
 });
 
