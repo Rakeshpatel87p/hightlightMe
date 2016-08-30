@@ -1,4 +1,3 @@
-// Put non-dupicative highlights
 // Delete highlights
 
 // Create unique records for embedded docs
@@ -16,16 +15,13 @@ app.use(jsonParser);
 
 app.use(express.static('public'));
 // Fix for deprecation warning # 4291
-mongoose.Promise = global.Promise;
+// mongoose.Promise = global.Promise;
 mongoose.connect('mongodb://localhost/highlightMeData');
 
 mongoose.connection.on('error', function(err) {
     console.error('Could not connect. Error', err)
 });
-// unique: true == doesn't work
-// dropDups true == doesn't work
-// $addToSet in PUT doesnt work
-// Option: create seperate schema for highlights, use populate method to ensure unqiueness
+
 var userSchema = mongoose.Schema({
     username: { type: String, unique: true },
     comments: [{ comment: String, text_end: Number, text_start: Number, cursorPositionTop: Number, cursorPositionLeft: Number, time: { type: Date, default: Date.now } }],
@@ -34,7 +30,6 @@ var userSchema = mongoose.Schema({
 });
 
 var highlightSchema = mongoose.Schema({
-    // username: String,
     text_end: {
         type: Number,
         index: true
@@ -47,89 +42,24 @@ var highlightSchema = mongoose.Schema({
         type: Schema.Types.ObjectId,
         ref: 'User',
         index: true
+    },
+    time: {
+        type: Date,
+        default: Date.now
     }
-    // time: { type: Date, default: Date.now }
 });
 
-// One method to prevent duplicates - allows duplicates
+// Prevents duplicate docs
 highlightSchema.index({ text_end: 1, text_start: 1, users: 1 }, { unique: true })
 
 var User = mongoose.model('User', userSchema);
 var Highlight = mongoose.model('Highlight', highlightSchema);
 // Magnifying error events for highlight
-Highlight.schema.options.emitIndexErrors;
-Highlight.on('error', function(error) {
-    console.log(error)
-});
-
-// Example of implementing populate
-app.get('/users/sample', function(req, res) {
-    // var rakesh2 = new User({ username: "rakesh4" });
-    // rakesh2.save();
-    User.findOne({ username: 'rakesh4' }, function(err, user) {
-        if (err) {
-            res.status(500).json(err);
-        }
-        var rakesh2ID = user._id;
-
-        var newHighlight = new Highlight({
-            text_end: 44,
-            text_start: 2,
-            users: rakesh2ID
-        });
-
-        newHighlight.save(function(err) {
-            if (err) {
-                console.log(err)
-            }
-            console.log('hl on index', newHighlight);
-            Highlight.find({}) //~want to enter in find query here
-                .populate('users')
-                .exec(function(err, highlights) {
-                    console.log('after hl.find', highlights);
-                });
-        });
-
-        // Highlight.on('index', function(error) {
-        //     if (!error) {
-        //         newHighlight.save(function(err) {
-        //             if (err) {
-        //                 console.log(err)
-        //             }
-        //             console.log('hl on index', newHighlight);
-        //             Highlight.find({}) //~want to enter in find query here
-        //                 .populate('users')
-        //                 .exec(function(err, highlights) {
-        //                     console.log('after hl.find', highlights);
-        //                 });
-        //         });
-        //     };
-        //     console.log('hey');
-        //     console.log(error);
-        // });
-
-    });
-
-    res.json({});
-
-});
-
-
-// This method of preventing duplicates did not work - would not create new highlight
-
-
-// newHighlight.save(function(err) {
-//     if (err) {
-//         console.log(err)
-//     }
-
-// Highlight.find({}) //~want to enter in find query here
-//     .populate('users')
-//     .exec(function(err, highlights) {
-//         console.log(highlights);
-//     })
-
+// Highlight.schema.options.emitIndexErrors;
+// Highlight.on('error', function(error) {
+//     console.log(error)
 // });
+
 // Get user information
 app.get('/users', function(req, res) {
     User.find(function(err, users) {
