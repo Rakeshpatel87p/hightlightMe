@@ -29,20 +29,38 @@ mongoose.connection.on('error', function(err) {
 var userSchema = mongoose.Schema({
     username: { type: String, unique: true },
     comments: [{ comment: String, text_end: Number, text_start: Number, cursorPositionTop: Number, cursorPositionLeft: Number, time: { type: Date, default: Date.now } }],
-    highlights: [{ type: Schema.Types.ObjectId, ref: 'Highlights' }]
+
         // highlights: [{ text_end: Number, text_start: Number }, { unique: true, dropDups: true }]
 });
 
-var highlightsSchema = mongoose.Schema({
+var highlightSchema = mongoose.Schema({
     // username: String,
     text_end: Number,
     text_start: Number,
+    users: [{userId: { type: Schema.Types.ObjectId, ref: 'User' }}]
     // time: { type: Date, default: Date.now }
 });
 
-var User = mongoose.model('User', userSchema);
-var Highlights = mongoose.model('Highlights', highlightsSchema);
+highlightSchema.index({users: 1, text_end: 1, text_start: 1}, {unique: true})
 
+var User = mongoose.model('User', userSchema);
+var Highlight = mongoose.model('Highlight', highlightSchema);
+
+app.get('/users/sample', function(req, res){
+    var rakesh2 = new User({username: "rakesh2"});
+    rakesh2.save();
+
+    var newHighlight = new Highlight ({
+        text_end: 42,
+        text_start: 12,
+        users: [{userId: rakesh2._id}]
+    })
+
+    newHighlight.save();
+
+    res.json({});
+
+})
 // Get user information
 app.get('/users', function(req, res) {
     User.find(function(err, users) {
@@ -104,18 +122,23 @@ app.put('/users/:username/highlights', function(req, res) {
         'text_end': req.body.text_end,
         'text_start': req.body.text_start
     }
-    Highlights.create(newHighlight, function(err, highlight) {
-        if (err) return res.status(500).json(highlight);
-        res.status(201).json(highlight);
+    Highlight.create(newHighlight, function(err, highlight) {
+        if (err) return res.status(500).json({ message: "there is an error"});
+        console.log(highlight, 'hl');
+        console.log('--------------------')
+        // json() --> json({ })
+        // res.status(201).json('new highlight created', highlight);
     });
 
     User.findOne({ username: req.params.username }, function(err, user) {
         if (err) {
             return res.status(500).json(err);
         }
-        console.log(user.highlights);
-        console.log(newHighlight);
-        user.highlights.push(newHighlight);
+
+        console.log('highlight', user.highlighs);
+        console.log('--------------------')
+        // console.log('newhl', newHighlight);
+        // user.highlights.push(newHighlight);
 
     });
     // Highlights.push({highlight});
@@ -138,9 +161,9 @@ app.put('/users/:username/highlights', function(req, res) {
 
     // });
     // console.log(newHighlight);
-    User.findOne({ username: req.params.username }).populate('highlights').exec(function(err, updatedUser) {
-        console.log(updatedUser);
-    });
+    // User.findOne({ username: req.params.username }).populate('highlight').exec(function(err, updatedUser) {
+    //     console.log(updatedUser);
+    // });
     // User.findOne(username).populate('User.highlights').exec(function(err, user){
     //     if (err) return res.status(500).json(err);
     //     console.log(user)
@@ -199,6 +222,7 @@ app.put('/users/:username/highlights', function(req, res) {
 
     //     res.status(200).json(user);
     // });
+    res.status(200).json({});
 });
 
 // Delete highlights
