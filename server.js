@@ -98,15 +98,23 @@ app.delete('/users', function(req, res) {
 // Get highlights and comments
 app.get('/users/:username', function(req, res, errback) {
     var username = req.params.username;
-    User.findOne({ username: username }, function(err, user) {
+    User.find({ username: username }, function(err, user) {
         if (err) {
             errback(err);
             return;
         }
-        Highlight.find({ 'users': user._id }, function(err, userHighlights) {
-            if (err) return res.status(500).json(err);
-            res.status(200).json({'userHighlights': userHighlights, 'userData': user})
-        });
+        
+        Highlight.find({'users': user._id})
+            .populate('users')
+            .exec(function(err, userHighlights){
+                if (err) return res.status(500).json(err)
+                return ({user, userHighlights})
+            });
+
+        // Highlight.find({ 'users': user._id }, function(err, userHighlights) {
+        //     if (err) return res.status(500).json({});
+        //     res.status(200).json({'userHighlights': userHighlights, 'userData': user})
+        // });
     });
 });
 // Needs work - see below

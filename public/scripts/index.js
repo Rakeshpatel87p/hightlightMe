@@ -2,9 +2,7 @@
 // Delete comments permanently
 
 // Comments link - open/close all
-
-// Highlights
-// Prevent duplicate highlights from going into server
+// Unhighlight item
 
 var textHighlightedByUser;
 var cursorPosition;
@@ -17,7 +15,6 @@ var end;
 
 $(function() {
     username = prompt('What is your username? If not registered, please write one');
-    console.log(username);
     checkForUserData(username);
     $(".sample")
         .mouseup(function() {
@@ -104,6 +101,7 @@ $(function() {
             data: commentToDelete,
             dataType: 'json'
         });
+        console.log(commentToDelete);
         ajax.done()
     });
 
@@ -158,10 +156,11 @@ var checkForUserData = function(username) {
         type: 'GET',
         dataType: 'json',
         success: function(userData) {
-            if (userData == null) {
+            console.log(userData);
+            if (userData.userData.length == 0) {
                 registerNewUser(username);
+                console.log('Welcome', username)
             } else {
-                console.log(userData);
                 if (userData.userHighlights.length > 0) {
                     for (var i = 0; i < userData.userHighlights.length; i++) {
                         var textToHighlight = thisText.slice(userData.userHighlights[i].text_start, userData.userHighlights[i].text_end);
@@ -189,6 +188,7 @@ var checkForUserData = function(username) {
         }
 
     });
+    ajax.done();
 };
 
 var getHighlightedTextPosition = function(textHighlightedByUser, end, start) {
@@ -212,7 +212,7 @@ var registerNewUser = function(username) {
         data: { username: username },
         dataType: 'string',
     });
-    ajax.done(console.log('registered new user'));
+    ajax.done();
 };
 
 function getSelectionText() {
