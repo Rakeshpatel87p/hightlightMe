@@ -103,8 +103,11 @@ app.get('/users/:username', function(req, res, errback) {
             errback(err);
             return;
         }
-        res.status(201).json(user);
-    })
+        Highlight.find({ 'users': user._id }, function(err, userHighlights) {
+            if (err) return res.status(500).json(err);
+            res.status(200).json({'userHighlights': userHighlights, 'userData': user})
+        });
+    });
 });
 // Needs work - see below
 app.put('/users/:username/highlights', function(req, res) {
@@ -124,8 +127,8 @@ app.put('/users/:username/highlights', function(req, res) {
                     .populate('users')
                     .exec(function(err, newHighlight) {
                         console.log('newHighlight', newHighlight)
-                    })
-            }
+                    });
+            };
             console.log(err)
         });
     });

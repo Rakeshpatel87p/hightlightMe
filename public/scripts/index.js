@@ -157,38 +157,38 @@ var checkForUserData = function(username) {
     var ajax = $.ajax('/users/' + username, {
         type: 'GET',
         dataType: 'json',
-        success: function(data) {
-            if (data == null) {
+        success: function(userData) {
+            if (userData == null) {
                 registerNewUser(username);
             } else {
-                // if (data.highlights.length > 0) {
-                //     for (var i = 0; i < data.highlights.length; i++) {
-                //         var textToHighlight = thisText.slice(data.highlights[i].text_start, data.highlights[i].text_end);
-                //         var spn = '<span class="selectedYellow">' + textToHighlight + '</span>';
-                //         // need to play with this more. Maybe insert vs. replace?
-                //         $('.sample').html($('.sample').html().replace(textToHighlight, spn));
+                console.log(userData);
+                if (userData.userHighlights.length > 0) {
+                    for (var i = 0; i < userData.userHighlights.length; i++) {
+                        var textToHighlight = thisText.slice(userData.userHighlights[i].text_start, userData.userHighlights[i].text_end);
+                        var spn = '<span class="selectedYellow">' + textToHighlight + '</span>';
+                        // need to play with this more. Maybe insert vs. replace?
+                        $('.sample').html($('.sample').html().replace(textToHighlight, spn));
 
-                //     }
-                // }
+                    }
+                }
 
-                if (data.comments.length > 0) {
-                    for (var i = 0; i < data.comments.length; i++) {
-                        $('<div class="indivCommentContainer"><div class="indivCommentDiv"><i class="material-icons indivComment" id=' + data.comments[i]._id + '>insert_comment</i></div></div>').appendTo('.sample')
+                if (userData.userData.comments.length > 0) {
+                    for (var i = 0; i < userData.userData.comments.length; i++) {
+                        $('<div class="indivCommentContainer"><div class="indivCommentDiv"><i class="material-icons indivComment" id=' + userData.userData.comments[i]._id + '>insert_comment</i></div></div>').appendTo('.sample')
                             .css({
                                 'position': 'absolute',
-                                'top': data.comments[i].cursorPositionTop,
-                                'left': data.comments[i].cursorPositionLeft,
+                                'top': userData.userData.comments[i].cursorPositionTop,
+                                'left': userData.userData.comments[i].cursorPositionLeft,
                             });
                     }
                 }
             }
-
         },
         error: function(err) {
             console.log(err);
         }
+
     });
-    ajax.done();
 };
 
 var getHighlightedTextPosition = function(textHighlightedByUser, end, start) {
