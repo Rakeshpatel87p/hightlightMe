@@ -83,25 +83,25 @@ $(function() {
         });
 
     });
-
+    // Comment is closed
     $('.sample').on('click', '.closeCommentIcon', function(event) {
         $(event.target).closest('.closeCommentIcon').siblings('.indivCommentDiv').children().first().hide();
         $(event.target).closest('.indivCommentContainer').children('.closeCommentIcon').hide();
         $(event.target).closest('.indivCommentContainer').children('.deleteCommentIcon').hide();
         // $(event.target).closest('#indivCommentDiv').hide();
     });
-
+    // Comment is deleted
     $('.sample').on('click', '.deleteCommentIcon', function(event) {
         $(event.target).closest('.deleteCommentIcon').siblings('.indivCommentDiv').children().first().hide();
         $(event.target).closest('.indivCommentContainer').children('.closeCommentIcon').hide();
         $(event.target).closest('.indivCommentContainer').children('.deleteCommentIcon').hide().children().first();
         var commentToDelete = $(event.target).closest('.indivCommentContainer').children('.indivCommentDiv').children('.indivComment').attr('id');
+        console.log('comment ID to delete', commentToDelete);
         var ajax = $.ajax('/users/:username/comments', {
             type: 'DELETE',
-            data: commentToDelete,
+            data: {commentIdToDelete: commentToDelete},
             dataType: 'json'
         });
-        console.log(commentToDelete);
         ajax.done()
     });
 
@@ -160,6 +160,7 @@ var checkForUserData = function(username) {
                 registerNewUser(username);
                 console.log('Welcome', username)
             } else {
+                console.log('Welcome back', username)
                 if (userData.userHighlights.length > 0) {
                     for (var i = 0; i < userData.userHighlights.length; i++) {
                         var textToHighlight = thisText.slice(userData.userHighlights[i].text_start, userData.userHighlights[i].text_end);

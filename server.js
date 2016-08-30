@@ -1,8 +1,3 @@
-// Delete highlights
-
-// Create unique records for embedded docs
-// VERSUS one to many, creating relationships
-
 var express = require('express');
 var mongoose = require('mongoose');
 var app = express();
@@ -25,8 +20,6 @@ mongoose.connection.on('error', function(err) {
 var userSchema = mongoose.Schema({
     username: { type: String, unique: true },
     comments: [{ comment: String, text_end: Number, text_start: Number, cursorPositionTop: Number, cursorPositionLeft: Number, time: { type: Date, default: Date.now } }],
-    // highlights: {type: Schema.Types.ObjectId, ref: 'Highlight'}
-    // highlights: [{ text_end: Number, text_start: Number }, { unique: true, dropDups: true }]
 });
 
 var highlightSchema = mongoose.Schema({
@@ -54,11 +47,6 @@ highlightSchema.index({ text_end: 1, text_start: 1, users: 1 }, { unique: true }
 
 var User = mongoose.model('User', userSchema);
 var Highlight = mongoose.model('Highlight', highlightSchema);
-// Magnifying error events for highlight
-// Highlight.schema.options.emitIndexErrors;
-// Highlight.on('error', function(error) {
-//     console.log(error)
-// });
 
 // Get user information
 app.get('/users', function(req, res) {
@@ -195,27 +183,54 @@ app.put('/users/:username/comments', function(req, res) {
 
 // Delete comments
 app.delete('/users/:username/comments', function(req, res) {
-    var username = { username: req.params.username };
-    // var comment = {
-    //     comment: req.body.comment,
-    //     text_end: req.body.text_end,
-    //     text_start: req.body.text_start
-    // };
+    User.findOneAndUpdate({ username: req.params.username }, { $pull: { _id: req.body.commentIdToDelete } }, { new: true }, function(err, data) {
+        if (err) {
+            res.status(500).json('Not properly pulled')
+        }
+        console.log(data);
+        res.status(201).json(data);
+    });
 
-    User.findOneAndUpdate(username, { $pull: { _id: req.body.commentToDelete } }, { new: true }, function(err, data) {
-            if (err) {
-                res.status(500).json('Not properly pulled')
-            }
-            console.log(data);
-            res.status(201).json(data);
-        })
-        // User.findOneAndRemove(username, {sort: {'comments': comment} }, { new: true }, function(err, callback) {
-        //     if (err) {
-        //         return res.status(500).json('Not Able to Delete Comment', err)
-        //     }
-        //     res.status(201).json(data);
-        // });
-})
+});
+
+// app.delete('/users/:username/comments', function(req, res) {
+//         console.log(req.body.commentIdToDelete);
+//         User.findOne({username: req.params.username, comments._id: req.body.commentIdToDelete}, function(err, data){
+//             console.log(data);
+//         })
+//             // .remove()
+//             // .exec(function(err, callback) {
+//             //     if (err) return res.status(500).json(err)
+//             //     console.log(callback);
+//             // })
+
+//     })
+// User.findOne(req.body.commentIdToDelete, function(err, callback) {
+//     if (err) return res.status(500).json(err)
+//     console.log(callback);
+// })
+
+// var username = { username: req.params.username };
+// var comment = {
+//     comment: req.body.comment,
+//     text_end: req.body.text_end,
+//     text_start: req.body.text_start
+// };
+
+// User.findOneAndUpdate(username, { $pull: { _id: req.body.commentToDelete } }, { new: true }, function(err, data) {
+//         if (err) {
+//             res.status(500).json('Not properly pulled')
+//         }
+//         console.log(data);
+//         res.status(201).json(data);
+//     })
+// User.findOneAndRemove(username, {sort: {'comments': comment} }, { new: true }, function(err, callback) {
+//     if (err) {
+//         return res.status(500).json('Not Able to Delete Comment', err)
+//     }
+//     res.status(201).json(data);
+// });
+
 
 app.listen(process.env.PORT || 8080);
 
