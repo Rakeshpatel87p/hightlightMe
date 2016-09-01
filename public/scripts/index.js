@@ -1,9 +1,3 @@
-// Comments:
-// Delete comments permanently
-
-// Comments link - open/close all
-// Unhighlight item
-
 var textHighlightedByUser;
 var cursorPosition;
 var id;
@@ -23,33 +17,30 @@ $(function() {
             start = thisText.indexOf(textHighlightedByUser);
             end = start + textHighlightedByUser.length;
             cursorPosition = { top: event.pageY - 36, left: event.pageX - 44 }
+            // User selects text
             if (textHighlightedByUser != "") {
                 $(".highlightOptions").show().css({ 'top': event.pageY + 10, 'left': event.pageX });
+                // Highlight button is clicked
                 if ($("#highlight").click(function() {
-                        // PUT IN RETURNED DATA HERE TO DETERMINE IF HIGHLIGHT IS UNIQUE
                         var textToHighlight = getHighlightedTextPosition(textHighlightedByUser, end, start);
                         var spn = '<span class="selectedYellow">' + textToHighlight + '</span>'
                         $('.sample').html($('.sample').html().replace(textToHighlight, spn));
-                        if ($(textHighlightedByUser).hasClass('selectedYellow')) {
-                            console.log('already highlighted');
-                        }
                         $(".highlightOptions").hide();
                     }));
+                // Comment button is clicked
                 if ($("#comment").click(function(event) {
                         event.preventDefault();
                         var id = $(this).data("id");
                         $('#msgbox').dialog('open').css({ 'top': event.pageY - 100, 'left': event.pageX });
                     }));
 
-
             } else {
                 $('.highlightOptions').hide();
             };
         });
-
+    // Indiv comment is clicked - user comment is loaded
     $('.sample').on('click', '.indivCommentDiv', function(event) {
         var commentId = $(event.target).closest('.indivCommentContainer').children('.indivCommentDiv').children('.indivComment').attr('id');
-        // var position = $(event.target).closest('.indivCommentContainer').position();
         var ajax = $.ajax('/users/' + username + '/comments/' + commentId, {
             type: 'GET',
             contentType: "application/json",
@@ -60,22 +51,14 @@ $(function() {
                         .css({
                             'bottom': 4,
                         });
-                    $('<i class="material-icons closeCommentIcon">highlight_off</i>').appendTo($(event.target).closest('.indivCommentContainer'))
-                        // .css({
-                        //     'bottom': 55,
-                        //     'left': data.cursorPositionLeft
-                        // });
+                    $('<i class="material-icons closeCommentIcon">highlight_off</i>').appendTo($(event.target).closest('.indivCommentContainer'));
                     $('<i class="material-icons deleteCommentIcon">delete</i>').appendTo($(event.target).closest('.indivCommentContainer'));
-                    // .css({
-                    //     'bottom': data.cursorPositionTop + 50,
-                    //     'left': data.cursorPositionLeft + 40
-                    // });
+
                 } else {
                     $(event.target).closest('.indivCommentDiv').children().first().show();
                     $(event.target).closest('.indivCommentContainer').children('.closeCommentIcon').show();
                     $(event.target).closest('.indivCommentContainer').children('.deleteCommentIcon').show();
                 }
-
 
             },
             error: function(err) {
@@ -84,19 +67,15 @@ $(function() {
         });
 
     });
-    // Comment is closed
+    // Comment is closed by user
     $('.sample').on('click', '.closeCommentIcon', function(event) {
         $(event.target).closest('.closeCommentIcon').siblings('.indivCommentDiv').children().first().hide();
         $(event.target).closest('.indivCommentContainer').children('.closeCommentIcon').hide();
         $(event.target).closest('.indivCommentContainer').children('.deleteCommentIcon').hide();
-        // $(event.target).closest('#indivCommentDiv').hide();
     });
-    // Comment is deleted
+    // Comment is deleted by user
     $('.sample').on('click', '.deleteCommentIcon', function(event) {
         var commentToDelete = $(event.target).closest('.indivCommentContainer').children('.indivCommentDiv').children('.indivComment').attr('id');
-        // $(event.target).closest('.deleteCommentIcon').siblings('.indivCommentDiv').children().first().hide();
-        // $(event.target).closest('.indivCommentContainer').children('.closeCommentIcon').hide();
-        // $(event.target).closest('.indivCommentContainer').children('.deleteCommentIcon').hide().children().first();
         var ajax = $.ajax('/users/:username/comments', {
             type: 'DELETE',
             data: { commentIdToDelete: commentToDelete },
@@ -144,9 +123,6 @@ $('#msgbox').dialog({
             $(".highlightOptions").hide();
 
         },
-        // $(this).dialog('close');
-
-        // },
         Cancel: function() {
             $(this).dialog('close');
             $(".highlightOptions").hide();
@@ -168,7 +144,6 @@ var checkForUserData = function(username) {
                     for (var i = 0; i < userData.userHighlights.length; i++) {
                         var textToHighlight = thisText.slice(userData.userHighlights[i].text_start, userData.userHighlights[i].text_end);
                         var spn = '<span class="selectedYellow">' + textToHighlight + '</span>';
-                        // need to play with this more. Maybe insert vs. replace?
                         $('.sample').html($('.sample').html().replace(textToHighlight, spn));
 
                     }

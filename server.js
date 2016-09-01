@@ -1,16 +1,17 @@
+// Explanatory comments
+// Take out unneeded code
+// Run Tests
+
 var express = require('express');
 var mongoose = require('mongoose');
 var app = express();
 var Schema = mongoose.Schema;
 var bodyParser = require('body-parser');
 var jsonParser = bodyParser.json();
-var _ = require('underscore');
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(jsonParser);
 
 app.use(express.static('public'));
-// Fix for deprecation warning # 4291
-// mongoose.Promise = global.Promise;
 mongoose.connect('mongodb://localhost/highlightMeData');
 
 mongoose.connection.on('error', function(err) {
@@ -19,7 +20,6 @@ mongoose.connection.on('error', function(err) {
 
 var userSchema = mongoose.Schema({
     username: { type: String, unique: true },
-    // comments: [{ comment: String, text_end: Number, text_start: Number, cursorPositionTop: Number, cursorPositionLeft: Number, time: { type: Date, default: Date.now } }],
 });
 
 var highlightSchema = mongoose.Schema({
@@ -156,38 +156,12 @@ app.put('/users/:username/highlights', function(req, res) {
     res.status(200).json({});
 });
 
-// Delete highlights
-// app.delete('/users/:username/highlights', function(req, res) {
-//     var username = { username: req.params.username };
-//     highlight = {
-//         text_end: req.body.text_end,
-//         text_start: req.body.text_start
-//     }
-
-//     User.findOneAndUpdate(username, { $pull: { highlights: highlight } }, { new: true }, function(err, data) {
-//         if (err) {
-//             res.status(500).json('Not properly pulled')
-//         }
-//         res.status(201).json(data);
-//     })
-// });
-
 // Get individual comments
 app.get('/users/:username/comments/:commentId', function(req, res) {
     Comment.findOne({ _id: req.params.commentId }, function(err, userComment) {
         if (err) return res.status(500).json(err)
         res.status(201).json(userComment);
     });
-    // Comment.findOne({ _id: req.params.commentId }, function(err, user) {
-    //     if (err) {
-    //         res.status(500).json(err);
-    //     }
-    //     var commentClickedUpon = _.findWhere(user.comments, {
-    //         cursorPositionLeft: parseInt(req.params.positionLeft),
-    //         cursorPositionTop: parseInt(req.params.positionTop)
-    //     });
-    //     res.status(201).json(commentClickedUpon);
-    // });
 });
 
 // Put comments
@@ -221,82 +195,13 @@ app.put('/users/:username/comments', function(req, res) {
 
 });
 
-// var query = { username: req.params.username };
-// var comment = {
-//     comment: req.body.comment,
-//     text_end: req.body.text_end,
-//     text_start: req.body.text_start,
-//     cursorPositionLeft: req.body.cursorPositionLeft,
-//     cursorPositionTop: req.body.cursorPositionTop
-// };
-// console.log(comment);
-// User.findOneAndUpdate(query, { $push: { comments: comment } }, { upsert: true, new: true }, function(error, data) {
-//     if (error) {
-//         res.status(500).json('Comment not uploaded');
-//         return;
-//     }
-//     console.log(data);
-//     res.status(201).json(data);
-// });
-
-
 // Delete comments
 app.delete('/users/:username/comments', function(req, res) {
     Comment.findByIdAndRemove({ _id: req.body.commentIdToDelete }, function(err, callback) {
         if (err) return res.status(500).json('wtf');
         console.log(callback);
     });
-    // User.update({ _id: req.body.commentIdToDelete }, { $pull: { 'users.comments': { _id: req.body.commentIdToDelete } } })
-    // User.findOneAndUpdate({ username: req.params.username }, { $pull: { _id: req.body.commentIdToDelete } }, { new: true }, function(err, data) {
-    //     if (err) {
-    //         res.status(500).json('Not properly pulled')
-    //     }
-    //     console.log(data);
-    //     res.status(201).json(data);
-    // });
 
 });
-
-// app.delete('/users/:username/comments', function(req, res) {
-//         console.log(req.body.commentIdToDelete);
-//         User.findOne({username: req.params.username, comments._id: req.body.commentIdToDelete}, function(err, data){
-//             console.log(data);
-//         })
-//             // .remove()
-//             // .exec(function(err, callback) {
-//             //     if (err) return res.status(500).json(err)
-//             //     console.log(callback);
-//             // })
-
-//     })
-// User.findOne(req.body.commentIdToDelete, function(err, callback) {
-//     if (err) return res.status(500).json(err)
-//     console.log(callback);
-// })
-
-// var username = { username: req.params.username };
-// var comment = {
-//     comment: req.body.comment,
-//     text_end: req.body.text_end,
-//     text_start: req.body.text_start
-// };
-
-// User.findOneAndUpdate(username, { $pull: { _id: req.body.commentToDelete } }, { new: true }, function(err, data) {
-//         if (err) {
-//             res.status(500).json('Not properly pulled')
-//         }
-//         console.log(data);
-//         res.status(201).json(data);
-//     })
-// User.findOneAndRemove(username, {sort: {'comments': comment} }, { new: true }, function(err, callback) {
-//     if (err) {
-//         return res.status(500).json('Not Able to Delete Comment', err)
-//     }
-//     res.status(201).json(data);
-// });
-
-
 app.listen(process.env.PORT || 8080);
-
 exports.app = app;
-// exports.userData = userData;
