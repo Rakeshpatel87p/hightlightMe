@@ -12,7 +12,8 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(jsonParser);
 
 app.use(express.static('public'));
-mongoose.connect('mongodb://rakeshpatel87p:printer1@ds029705.mlab.com:29705/highlight_me', function(success){
+
+mongoose.connect(process.env.MONGOLAB_URI, function(success){
     console.log('successfully conncted to server')
 });
 
