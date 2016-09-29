@@ -1,11 +1,12 @@
-var textHighlightedByUser;
-var cursorPosition;
-var id;
-var date = $.datepicker.formatDate('yy/mm/dd', new Date());
-var thisText = $('.sample').text();
-var username;
-var start;
-var end;
+var 
+    textHighlightedByUser,
+    cursorPosition,
+    id,
+    date = $.datepicker.formatDate('yy/mm/dd', new Date()),
+    thisText = $('.sample').text(),
+    username,
+    start,
+    end;
 
 $(function() {
     username = prompt('What is your username? If not registered, please write one');
