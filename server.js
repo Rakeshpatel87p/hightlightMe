@@ -2,23 +2,31 @@
 // Take out unneeded code
 // Run Tests
 
-var express = require('express');
-var mongoose = require('mongoose');
-var app = express();
-var Schema = mongoose.Schema;
-var bodyParser = require('body-parser');
-var jsonParser = bodyParser.json();
+var express = require('express'),
+    mongoose = require('mongoose'),
+    app = express(),
+    Schema = mongoose.Schema,
+    bodyParser = require('body-parser'),
+    jsonParser = bodyParser.json(),
+    db;
+
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(jsonParser);
 
 app.use(express.static('public'));
 
-mongoose.connect(process.env.MONGOLAB_URI, function(success){
-    console.log('successfully conncted to server')
-});
+mongoose.connect(process.env.MONGOLAB_URI, function(err, database) {
+    if (err) {
+        console.log('this is the error', err);
+        process.exit(1);
+    }
 
-mongoose.connection.on('error', function(err) {
-    console.error('Could not connect. Error', err)
+    db = database;
+    console.log('Database connection ready captain');
+    var server = app.listen(process.env.PORT || 8080, function() {
+        var port = server.address().port;
+        console.log('App now running on port', port)
+    });
 });
 
 var userSchema = mongoose.Schema({
@@ -206,5 +214,5 @@ app.delete('/users/:username/comments', function(req, res) {
     });
 
 });
-app.listen(process.env.PORT || 8080);
+// app.listen(process.env.PORT || 8080);
 exports.app = app;
