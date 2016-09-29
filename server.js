@@ -12,7 +12,9 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(jsonParser);
 
 app.use(express.static('public'));
-mongoose.connect('mongodb://rakeshpatel87p:printer1@ds029705.mlab.com:29705/highlight_me');
+mongoose.connect('mongodb://rakeshpatel87p:printer1@ds029705.mlab.com:29705/highlight_me', function(success){
+    console.log('successfully conncted to server')
+});
 
 mongoose.connection.on('error', function(err) {
     console.error('Could not connect. Error', err)
