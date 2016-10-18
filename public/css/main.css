@@ -14,8 +14,16 @@ body {
 
 .instructionPopup {
     position: absolute;
-    margin-top: 30%;
+    margin-top: 8%;
+    margin-right: 22%;
     text-align: center;
+    border: 7px solid black;
+    background-color: green;
+}
+
+.startApplicationButton {
+    border: 1px solid black;
+    margin: 3% 39%;
 }
 
 .selectedYellow {
@@ -35,6 +43,10 @@ body {
 
 .highlightOptions:hover {
     opacity: 1;
+}
+
+.sample {
+    opacity: 0.1;
 }
 
 .sampl .material-icons {

@@ -11,6 +11,10 @@ var
 $(function() {
     // username = prompt('What is your username? If not registered, please write one');
     // checkForUserData(username);
+    $(".startApplicationButton").click(function(){
+        $(".instructionPopup").hide();
+        $(".sample").css('opacity', '1')
+    });
     $(".sample")
         .mouseup(function() {
             textHighlightedByUser = getSelectionText();
