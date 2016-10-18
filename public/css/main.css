@@ -12,6 +12,12 @@ body {
     bottom: 0;
 }
 
+.instructionPopup {
+    position: absolute;
+    margin-top: 30%;
+    text-align: center;
+}
+
 .selectedYellow {
     background-color: yellow;
 }
