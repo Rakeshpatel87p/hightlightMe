@@ -23,6 +23,7 @@ body {
 
 .userInputedName {
     padding: 2% 8%;
+    font-size:17px;
 }
 
 .startApplicationButton {
