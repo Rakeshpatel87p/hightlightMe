@@ -9,8 +9,8 @@ var
     end;
 
 $(function() {
-    username = prompt('What is your username? If not registered, please write one');
-    checkForUserData(username);
+    // username = prompt('What is your username? If not registered, please write one');
+    // checkForUserData(username);
     $(".sample")
         .mouseup(function() {
             textHighlightedByUser = getSelectionText();
