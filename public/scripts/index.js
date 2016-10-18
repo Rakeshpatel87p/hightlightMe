@@ -10,9 +10,9 @@ var
 
 $(function() {
     // username = prompt('What is your username? If not registered, please write one');
-    // checkForUserData(username);
     $(".startApplicationButton").click(function(){
         username = $('.userInputedName').val();
+        checkForUserData(username);
         $(".instructionPopup").hide();
         $(".sample").css('opacity', '1')
     });
