@@ -21,6 +21,10 @@ body {
     padding:1%;
 }
 
+.userInputedName {
+    padding: 2% 8%;
+}
+
 .startApplicationButton {
     border: 1px solid black;
     margin: 3% 39%;
