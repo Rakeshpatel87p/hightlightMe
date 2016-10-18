@@ -26,6 +26,10 @@ body {
     margin: 3% 39%;
 }
 
+.startApplicationButton:hover {
+    cursor: pointer;
+}
+
 .selectedYellow {
     background-color: yellow;
 }

@@ -12,6 +12,7 @@ $(function() {
     // username = prompt('What is your username? If not registered, please write one');
     // checkForUserData(username);
     $(".startApplicationButton").click(function(){
+        console.log('clicked');
         $(".instructionPopup").hide();
         $(".sample").css('opacity', '1')
     });
