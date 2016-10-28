@@ -1,4 +1,4 @@
-var 
+var
     textHighlightedByUser,
     cursorPosition,
     id,
@@ -10,11 +10,19 @@ var
 
 $(function() {
     // username = prompt('What is your username? If not registered, please write one');
-    $(".startApplicationButton").click(function(){
+    $(".startApplicationButton").click(function() {
         username = $('.userInputedName').val();
         checkForUserData(username);
         $(".instructionPopup").hide();
         $(".sample").css('opacity', '1')
+    });
+
+    $('.userInputedName').keypress(function(e) {
+        var key = e.which;
+        if (key == 13) {
+            $('.startApplicationButton').click();
+            return false;
+        }
     });
     $(".sample")
         .mouseup(function() {
@@ -23,7 +31,7 @@ $(function() {
             start = thisText.indexOf(textHighlightedByUser);
             end = start + textHighlightedByUser.length;
             cursorPosition = { top: event.pageY - 36, left: event.pageX - 44 }
-            // User selects text
+                // User selects text
             if (textHighlightedByUser != "") {
                 $(".highlightOptions").show().css({ 'top': event.pageY + 10, 'left': event.pageX });
                 // Highlight button is clicked
